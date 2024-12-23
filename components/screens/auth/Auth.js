@@ -1,4 +1,11 @@
-import { View,  Text, TextInput, Image, Button, ScrollView, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View,
+  Text,
+  TextInput,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 

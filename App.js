@@ -3,11 +3,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Auth from './components/screens/auth/Auth';
+import Main from './components/screens/main/Main';
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
-      <Auth />
+      <Main />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
