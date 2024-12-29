@@ -4,13 +4,14 @@ import { View, Pressable, Text, StyleSheet } from 'react-native';
 
 
 
-export function AuthButton() {
+export function AuthButton({ handleLogin }) {
   const [press, setPress] = React.useState(false)
 
   return(
     <Pressable
     onPressIn={() => setPress(true)}
     onPressOut={() => setPress(false)}
+    onPress={() => handleLogin()}
     style={({ pressed }) => [
       styles.btn,
       pressed || press ? styles.btnPressed : null 

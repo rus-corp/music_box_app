@@ -15,16 +15,22 @@ import { AuthButton } from '../../ui/button/AuthButton';
 
 
 export default function Auth() {
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
+  const [userData, setUserData] = React.useState({
+    username: '',
+    password: ''
+  })
   const { height, width } = Dimensions.get('window')
   
   const handleChangeEmail = (text) => {
-    setEmail(text)
+    setUserData({...userData, username: text})
   }
 
   const handleChangePassword = (text) => {
+    setUserData({...userData, password: text})
+  }
 
+  const handleSubmit = () => {
+    console.log(userData)
   }
 
 
@@ -45,13 +51,15 @@ export default function Auth() {
                 <View style={styles.formData}>
                   <Text style={styles.inputLabel}>Email</Text>
                   <View style={styles.inputWrapper}>
-                    <TextInput keyboardType='email-address' style={styles.inputField}></TextInput>
+                    <TextInput keyboardType='email-address' style={styles.inputField} onChangeText={handleChangeEmail}></TextInput>
                   </View>
                   <Text style={styles.inputLabel}>Password</Text>
                   <View style={styles.inputWrapper}>
-                    <TextInput style={styles.inputField}></TextInput>
+                    <TextInput style={styles.inputField} onChangeText={handleChangePassword}></TextInput>
                   </View>
-                  <AuthButton />
+                  <View style={styles.btnWrapper}>
+                    <AuthButton handleLogin={handleSubmit}/>
+                  </View>
                 </View>
               </View>
             </ScrollView>

@@ -23,7 +23,6 @@ export const styles = StyleSheet.create({
   },
   formData: {
     width: '100%',
-    alignItems: 'center',
     // justifyContent: 'center'
   },
   inputLabel: {
@@ -40,4 +39,9 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: '3%'
   },
+  btnWrapper: {
+    marginTop: '5%',
+    textAlign: "center",
+    alignItems: 'center'
+  }
 })
