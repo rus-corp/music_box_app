@@ -6,11 +6,18 @@ import { View,
   KeyboardAvoidingView,
   Platform,
   Dimensions } from 'react-native';
+
+import querystring from 'querystring'
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 
 import { styles } from './styles'
 import { AuthButton } from '../../ui/button/AuthButton';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppContext } from '../../../hooks/AppContext';
+
+import { authPost } from '../../../api';
 
 
 
@@ -20,6 +27,8 @@ export default function Auth() {
     password: ''
   })
   const { height, width } = Dimensions.get('window')
+  const navigate = useNavigation()
+  const { setUser } = React.useContext(AppContext)
   
   const handleChangeEmail = (text) => {
     setUserData({...userData, username: text})
@@ -29,8 +38,23 @@ export default function Auth() {
     setUserData({...userData, password: text})
   }
 
-  const handleSubmit = () => {
-    console.log(userData)
+  const storeData = async(item, value) => {
+    try {
+      await AsyncStorage.setItem(item, value)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleSubmit = async() => {
+    const params = querystring.stringify(userData)
+    const response = await authPost(params)
+    if (response.status === 201 && response.data.access_token) {
+      await storeData('access_token', response.data.access_token)
+      await storeData('refresh_token', response.data.refresh_token)
+      setUser(response.data.access_token)
+      navigate.navigate('PlayList')
+    }
   }
 
 

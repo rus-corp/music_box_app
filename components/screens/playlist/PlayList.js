@@ -5,8 +5,26 @@ import { styles } from './styles'
 import Header from '../../ui/header/Header';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { AppContext } from '../../../hooks/AppContext';
 
-export default function Main() {
+import { getClientCollections } from '../../../api';
+
+
+export default function PlayList() {
+  const { user } = React.useContext(AppContext)
+  const [collections, setCollections] = React.useState([])
+
+  const clientCollections = async () => {
+    const response = await getClientCollections()
+    console.log(response)
+    if (response.status === 200) {
+      setCollections(response.data)
+    }
+  }
+
+  React.useEffect(() => {
+    clientCollections()
+  }, [user])
   return(
     <View style={styles.mainContainer}>
       <Header />
@@ -17,6 +35,12 @@ export default function Main() {
             <Text style={styles.headerContentItem}>Избранные</Text>
           </View>
           <View style={styles.line}></View>
+          <Text>123</Text>
+          <View>
+            {collections.map((collectionItem) => (
+              <Text key={collectionItem.id}>{collectionItem.name}</Text>
+            ))}
+          </View>
         </View>
       </LinearGradient>
     </View>

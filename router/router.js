@@ -3,7 +3,8 @@ import { createStaticNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Auth from '../components/screens/auth/Auth';
-import Main from '../components/screens/main/Main';
+import PlayList from '../components/screens/playlist/PlayList';
+
 
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Auth',
@@ -12,7 +13,7 @@ const RootStack = createNativeStackNavigator({
   },
   screens: {
     Auth: Auth,
-    Main: Main,
+    PlayList: PlayList,
   },
 });
 
