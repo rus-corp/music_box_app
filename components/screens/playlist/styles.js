@@ -6,9 +6,8 @@ export const styles = StyleSheet.create({
     flex: 1
   },
   mainContent: {
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
+    flex: 1,
+    paddingLeft: '10%'
   },
   mainContentHeader: {
     height: '10%',
@@ -25,7 +24,13 @@ export const styles = StyleSheet.create({
   line: {
     borderWidth: 1,
     width: '90%',
-    
     borderColor: 'rgba(255, 255, 255, 0.35)'
-  }
+  },
+  collectionList: {
+    flex: 1,
+    marginTop: '3%',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 40
+  },
 })

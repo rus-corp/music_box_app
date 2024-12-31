@@ -6,6 +6,7 @@ import Header from '../../ui/header/Header';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
+import Collection from '../../shared/collection/Collection';
 
 import { getClientCollections } from '../../../api';
 
@@ -13,10 +14,12 @@ import { getClientCollections } from '../../../api';
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
   const [collections, setCollections] = React.useState([])
+  if (!user) {
+    return null
+  }
 
   const clientCollections = async () => {
     const response = await getClientCollections()
-    console.log(response)
     if (response.status === 200) {
       setCollections(response.data)
     }
@@ -35,10 +38,12 @@ export default function PlayList() {
             <Text style={styles.headerContentItem}>Избранные</Text>
           </View>
           <View style={styles.line}></View>
-          <Text>123</Text>
-          <View>
+          <View style={styles.collectionList}>
             {collections.map((collectionItem) => (
-              <Text key={collectionItem.id}>{collectionItem.name}</Text>
+              <Collection key={collectionItem.id}
+              collectionTitle={collectionItem.name}
+              color={collectionItem.color}
+              />
             ))}
           </View>
         </View>
