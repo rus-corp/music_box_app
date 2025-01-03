@@ -6,15 +6,14 @@ export const styles = StyleSheet.create({
     flex: 1
   },
   mainContent: {
-    flex: 1,
-    paddingLeft: '10%'
+    flex: 1
   },
   mainContentHeader: {
     height: '10%',
     width: '90%',
     flexDirection: 'row',
     gap: 200,
-    marginLeft: '5%',
+    marginLeft: '7%',
     alignItems: 'center'
   },
   headerContentItem: {
@@ -22,15 +21,20 @@ export const styles = StyleSheet.create({
     fontSize: 32
   },
   line: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
     borderWidth: 1,
     width: '90%',
     borderColor: 'rgba(255, 255, 255, 0.35)'
   },
   collectionList: {
-    flex: 1,
-    marginTop: '3%',
+    marginTop: '2%',
+    paddingLeft: '5%',
+    paddingRight: '5%',
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 40
+    flexWrap: 'wrap',
+    gap: 40,
+    alignItems: 'stretch'
   },
 })

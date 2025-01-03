@@ -3,7 +3,7 @@ import React from 'react';
 import { styles } from './styles'
 
 import Header from '../../ui/header/Header';
-import { Text, View } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection/Collection';
@@ -31,21 +31,26 @@ export default function PlayList() {
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <LinearGradient colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
+      <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>
             <Text style={styles.headerContentItem}>Рекомендации</Text>
             <Text style={styles.headerContentItem}>Избранные</Text>
           </View>
           <View style={styles.line}></View>
-          <View style={styles.collectionList}>
-            {collections.map((collectionItem) => (
-              <Collection key={collectionItem.id}
-              collectionTitle={collectionItem.name}
-              color={collectionItem.color}
-              />
-            ))}
-          </View>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={styles.collectionList}>
+              {collections.map((collectionItem) => (
+                <Collection key={collectionItem.id}
+                collectionTitle={collectionItem.name}
+                image={collectionItem.image}
+                trackCount={collectionItem.track_count}
+                collectionId={collectionItem.id}
+                />
+              ))}
+            </View>
+
+          </ScrollView>
         </View>
       </LinearGradient>
     </View>

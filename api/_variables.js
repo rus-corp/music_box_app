@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+export const baseUrl = 'http://87.228.25.221:8000/api/'
 
 
 const getAccessToken = async () => {
@@ -14,7 +15,7 @@ const getRefreshToken = async() => {
 
 
 export const backend  = axios.create({
-  baseURL: 'http://87.228.25.221:8000/api/',
+  baseURL: baseUrl,
   headers: {'Content-Type': 'application/json',}
 })
 

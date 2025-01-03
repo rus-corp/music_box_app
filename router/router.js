@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Auth from '../components/screens/auth/Auth';
 import PlayList from '../components/screens/playlist/PlayList';
+import CollectionScreen from '../components/screens/collection/CollectionScreen';
 
 
 const RootStack = createNativeStackNavigator({
@@ -14,6 +15,7 @@ const RootStack = createNativeStackNavigator({
   screens: {
     Auth: Auth,
     PlayList: PlayList,
+    CollectionDetails: CollectionScreen,
   },
 });
 
