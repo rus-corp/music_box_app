@@ -11,3 +11,15 @@ export const getClientCollections = async () => {
     console.error(error)
   }
 }
+
+
+export const getCollectionTracks = async (collectionId) => {
+  try {
+    const response = await backend.get(
+      `/app_routers/get_collection_tracks/${collectionId}`
+    )
+    return response
+  } catch (error) {
+    console.error(error)
+  }
+}

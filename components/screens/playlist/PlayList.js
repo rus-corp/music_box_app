@@ -28,6 +28,7 @@ export default function PlayList() {
   React.useEffect(() => {
     clientCollections()
   }, [user])
+  
   return(
     <View style={styles.mainContainer}>
       <Header />

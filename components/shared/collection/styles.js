@@ -27,4 +27,15 @@ export const styles = StyleSheet.create({
     marginTop: '15%',
     textAlign: 'center'
   },
+  collectionBtn: {
+    marginTop: '9%',
+    width: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    paddingTop: '4%',
+    paddingBottom: '4%',
+    backgroundColor: 'red'
+  }
 })
+
