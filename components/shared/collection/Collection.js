@@ -1,23 +1,35 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, Button, Pressable } from 'react-native';
 import { styles } from './styles'
-import { baseUrl } from '../../../api';
+import { baseUrl, getCollectionTracks } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, createFolder } from '../helpers/utils';
+import { checkFolder, createFolder, deleteFolder, saveFileToFolder } from '../helpers/utils';
 
 
 export default function Collection({ collectionTitle, image, trackCount, collectionId }) {
   const imageSource = 'http://87.228.25.221:8000/api' + image
   const navigation = useNavigation()
   const [folderExsist, setFolderExsist] = React.useState(false)
-
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { id: collectionId })
   }
 
   const handleCreateDir = async() => {
-    const folder = await createFolder(collectionTitle)
-    setFolderExsist(folder)
+    let filesList;
+    const collectionTracks = await getCollectionTracks(collectionId)
+    if (collectionTracks.status === 200) {
+      filesList = collectionTracks.data.tracks
+      await saveFileToFolder(collectionTitle, filesList[0])
+      setFolderExsist(true)
+    }else {
+      console.log('server error')
+    }
+    
+  }
+
+  const handleDeleteFolder = async() => {
+    const folder = await deleteFolder(collectionTitle)
+    setFolderExsist(false)
   }
 
   React.useEffect(() => {
@@ -45,6 +57,9 @@ export default function Collection({ collectionTitle, image, trackCount, collect
             <Text>Загрузить</Text>
           </Pressable>
         )}
+        <Pressable onPress={handleDeleteFolder}>
+          <Text>Delete Folder</Text>
+        </Pressable>
       </View>
     </TouchableOpacity>
   );
