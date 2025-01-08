@@ -61,33 +61,23 @@ const saveFile = async (uri, filename, mimetype, collectionName) => {
     console.log('62 savedDirectoryUri', savedDirectoryUri)
     const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     try {
-      const destUri = `${savedDirectoryUri}%2F${filename}`
-      const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(savedDirectoryUri, filename, mimetype);
-      console.log('65 fileUri', fileUri)
-      await FileSystem.writeAsStringAsync(destUri, base64, { encoding: FileSystem.EncodingType.Base64 })
+      const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+        savedDirectoryUri,
+        filename,
+        mimetype
+      );
+      console.log('69 fileUri', fileUri)
+      await FileSystem.StorageAccessFramework.writeAsStringAsync(fileUri, base64, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      
       console.log('file writed to', fileUri)
-      const moveFile = await FileSystem.moveAsync({
-        from: fileUri,
-        to: savedDirectoryUri
-      })
     } catch (error) {
       console.log(error)
     }
-    
     console.log('files saved')
     }
 }
-
-
-
-// const saveDirectoryUri = async (uri) => {
-//   try {
-//     const dir = await AsyncStorage.setItem('directoryUri', uri)
-//     return dir
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
 
 
 
@@ -97,6 +87,7 @@ const requestDirPermisssion = async (collectionName) => {
     const dirUri = permission.directoryUri
     console.log('dirUri after permis ', dirUri)
     const collectionUri = await createSubFolder(dirUri, collectionName)
+    console.log('collectionUri', collectionUri)
     await AsyncStorage.setItem('directoryUri', collectionUri)
     return collectionUri
   }
@@ -112,18 +103,39 @@ const getOrRequestDirUri = async(collectionName) => {
   return saveDirUri
 }
 
+const createSubFolder = async(parentDirUri, folderName) => {
+  console.log('107 createSubFolder')
+  const subFolderUri = `${parentDirUri}%2F${folderName}`;
+  console.log('109 subFolderUri', subFolderUri)
+  try {
+    const dirInfo = await FileSystem.getUriForFileInDirectoryAsync(
+      parentDirUri, folderName
+    )
+    console.log('111 dirInfo', dirInfo)  
+  } catch(e) {
+    console.log(e)
+  }
+  if (!dirInfo.exists) {
+    console.log("directory doesn't exist, creating…")
+    const createdFolder = await FileSystem.makeDirectoryAsync(subFolderUri, { intermediates: true })
+    console.log('110 createdFolder', createdFolder)
+    return createdFolder;
+  }
+};
+
+
+
+
+// const saveDirectoryUri = async (uri) => {
+//   try {
+//     const dir = await AsyncStorage.setItem('directoryUri', uri)
+//     return dir
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
 
 const deleteStorageFolder = async () => {
   await AsyncStorage.removeItem('directoryUri')
   return true
-}
-
-
-const createSubFolder = async(parentDirUri, folderName) => {
-  const subFolderUri = await FileSystem.StorageAccessFramework.createFileAsync(
-    parentDirUri,
-    folderName,
-    "vnd.android.document/directory"
-  )
-  return subFolderUri
 }
