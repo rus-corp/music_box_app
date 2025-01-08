@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, Button, Pressable } from 'react-na
 import { styles } from './styles'
 import { baseUrl, getCollectionTracks } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, createFolder, deleteFolder, saveFileToFolder } from '../helpers/utils';
+import { checkFolder, deleteFolder, saveFileToFolder } from '../helpers/utils';
 
 
 export default function Collection({ collectionTitle, image, trackCount, collectionId }) {
@@ -11,7 +11,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
   const navigation = useNavigation()
   const [folderExsist, setFolderExsist] = React.useState(false)
   const handlePress = () => {
-    navigation.navigate('CollectionDetails', { id: collectionId })
+    navigation.navigate('CollectionDetails', { title: collectionTitle })
   }
 
   const handleCreateDir = async() => {
@@ -29,7 +29,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
 
   const handleDeleteFolder = async() => {
     const folder = await deleteFolder(collectionTitle)
-    setFolderExsist(false)
+    setFolderExsist(folder)
   }
 
   React.useEffect(() => {

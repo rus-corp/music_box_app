@@ -6,25 +6,18 @@ import { getCollectionTracks, downloadAudio } from '../../../api';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
 
+import { getCollectionFiles } from '../../shared/helpers/utils';
 
 
 
 export default function CollectionScreen({ route }) {
-  const { id } = route.params
-  const [collectionData, setCollectionData] = React.useState({
-    data: {},
-    tracks: []
-  })
+  const { title } = route.params
+  const [collectionTracksData, setCollectionTracksData] = React.useState([])
 
-  const collectionTracks = async (collectionId) => {
-    const response = await getCollectionTracks(collectionId)
-    if (response.status === 200) {
-      // console.log(response)
-      setCollectionData({
-        data: response.data,
-        tracks: response.data.tracks
-      })
-    }
+  const collectionTracks = async (collectionName) => {
+    const tracks = await getCollectionFiles(collectionName)
+    console.log(tracks)
+    setCollectionTracksData(tracks)
   }
 
   const handleDownloadFile = async(trackId, trackName) => {
@@ -56,22 +49,10 @@ export default function CollectionScreen({ route }) {
       shareAsync(uri);
     }
   }
-  // const saveFile = async (uri, filename, mimetype) => {
-  //   if (Platform.OS === 'android') {
-  //     const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-  //     if (permissions.granted) {
-  //       const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
-  //         permissions.directoryUri,
-  //         filename,
-  //         mimetype
-  //       )
-  //     }
-  //   }
-  // }
 
   React.useEffect(() => {
-    collectionTracks(id)
-  }, [id])
+    collectionTracks(title)
+  }, [title])
 
   return(
     <View style={styles.mainContainer}>
@@ -79,11 +60,10 @@ export default function CollectionScreen({ route }) {
       <LinearGradient
       style={styles.mainContent}
       colors={['rgba(120, 135, 251, 0.52)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
-        <Text>Collection {collectionData.data.name}</Text>
-        {collectionData.tracks.map((collectionTrack) => (
-          <View  key={collectionTrack.id}>
-            <Text>{collectionTrack.title}</Text>
-            <Button title='Download' onPress={() => handleDownloadFile(collectionTrack.id, collectionTrack.title)}/>
+        <Text>Collection {title}</Text>
+        {collectionTracksData.map((collectionTrack, indx) => (
+          <View  key={indx}>
+            <Text>{collectionTrack}</Text>
           </View>
         ))}
       </LinearGradient>
