@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Button, Platform } from 'react-native';
 import { styles } from './styles'
 import Header from '../../ui/header/Header';
-import { getCollectionTracks, downloadAudio } from '../../../api';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
 

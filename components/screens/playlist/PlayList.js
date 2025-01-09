@@ -7,6 +7,8 @@ import { Text, View, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection/Collection';
+import AudioPlayer from '../../ui/audio_player/AudioPlayer';
+import { getCollectionFiles } from '../../shared/helpers/utils';
 
 import { getClientCollections } from '../../../api';
 
@@ -16,6 +18,17 @@ export default function PlayList() {
   const [collections, setCollections] = React.useState([])
   if (!user) {
     return null
+  }
+  const [startPlay, setStartPlay] = React.useState(true)
+  const [tracks, setTracks] = React.useState([])
+  const handleStartPlay = (data) => {
+    setTracks(data)
+  }
+
+  const getTracks = async (collectionName) => {
+    const tracks = await getCollectionFiles(collectionName)
+    console.log(tracks)
+    return tracks
   }
 
   const clientCollections = async () => {
@@ -47,9 +60,12 @@ export default function PlayList() {
                 image={collectionItem.image}
                 trackCount={collectionItem.track_count}
                 collectionId={collectionItem.id}
+                startPlay={handleStartPlay}
+
                 />
               ))}
             </View>
+            {startPlay && <AudioPlayer tracks={tracks} />}
           </ScrollView>
         </View>
       </LinearGradient>
