@@ -22,6 +22,9 @@ import { authPost } from '../../../api';
 
 
 export default function Auth() {
+  const [responseStatus, setResponseStatus] = React.useState('')
+  const [responseData, setResponseData] = React.useState('')
+  const [responseUrl, setResponseUrl] = React.useState('')
   const [userData, setUserData] = React.useState({
     username: '',
     password: ''
@@ -54,6 +57,14 @@ export default function Auth() {
       await storeData('refresh_token', response.data.refresh_token)
       setUser(response.data.access_token)
       navigate.navigate('PlayList')
+    } else {
+      console.log(response)
+      console.log(response.status)
+      console.log(response.data)
+      console.log(response.request.responseURL)
+      setResponseStatus(response.status)
+      setResponseData(response.data.detail)
+      setResponseUrl(response.request.responseURL)
     }
   }
 
@@ -80,6 +91,11 @@ export default function Auth() {
                   <Text style={styles.inputLabel}>Password</Text>
                   <View style={styles.inputWrapper}>
                     <TextInput style={styles.inputField} onChangeText={handleChangePassword}></TextInput>
+                  </View>
+                  <View>
+                    <Text>{responseStatus}</Text>
+                    <Text>{responseData}</Text>
+                    <Text>{responseUrl}</Text>
                   </View>
                   <View style={styles.btnWrapper}>
                     <AuthButton handleLogin={handleSubmit}/>
