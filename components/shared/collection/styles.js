@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     width: '100%',
     height: '100%',
-    minHeight: '28%',
+    minHeight: 280,
     backgroundColor: 'rgba(220, 143, 164, 0.24)',
     alignItems: 'center'
     // borderWidth: 2,
@@ -14,21 +14,21 @@ export const styles = StyleSheet.create({
   image: {
     borderRadius: 20,
     width: '100%',
-    height: 100,
+    height: 150,
   },
   content: {
-    marginTop: '8%',
+    marginTop: '2%',
   },
   title: {
     fontWeight: 600,
     fontSize: 18
   },
   desc: {
-    marginTop: '15%',
+    marginTop: '7%',
     textAlign: 'center'
   },
   collectionBtn: {
-    marginTop: '9%',
+    marginTop: '5%',
     width: '80%',
     alignItems: 'center',
     justifyContent: 'center',

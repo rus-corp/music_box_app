@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     flex: 1
   },
   mainContentHeader: {
-    height: '10%',
+    height: '13%',
     width: '90%',
     flexDirection: 'row',
     gap: 200,

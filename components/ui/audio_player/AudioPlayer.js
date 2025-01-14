@@ -1,13 +1,32 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
-
+import { styles } from './styles'
+import { LinearGradient } from 'expo-linear-gradient';
+import { getTrackMeta } from '../../shared/helpers/utils';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function AudioPlayer({ tracks, playPress }) {
   console.log(tracks)
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
+  const trackMeat = async() => {
+    const fileUrl = `file:///data/user/0/host.exp.exponent/files/music_box/Boorn/${tracks[0]}`
+    const response = await getTrackMeta(fileUrl)
+    console.log('response', response)
+  }
+  const trackTitleSlice = (trackName) => {
+    if (trackName) {
+      const slicedName = trackName.slice(0, -4)
+      return slicedName
+    } else {
+      return ''
+    }
+  }
 
   React.useEffect(() => {
     if (tracks && tracks.length > 0) {
@@ -25,7 +44,7 @@ export default function AudioPlayer({ tracks, playPress }) {
   async function loadAndPlayAudio() {
     console.log(currentTrack)
     const trackUri = `file:///data/user/0/host.exp.exponent/files/music_box/Boorn/${currentTrack}`
-    console.log(trackUri)
+    console.log('trackUri', trackUri)
     const { sound } = await Audio.Sound.createAsync(
       { uri: `file:///data/user/0/host.exp.exponent/files/music_box/Boorn/${currentTrack}` },
       { shouldPlay: true }
@@ -65,18 +84,26 @@ export default function AudioPlayer({ tracks, playPress }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Button title={isPlaying ? 'Pause' : 'Play'} onPress={handlePlayPause} />
-      <Button title="Stop" onPress={stopAudio} />
-    </View>
+    <LinearGradient style={styles.player} colors={['rgba(122, 145, 240, 1)', 'rgba(220, 92, 189, 1)']}>
+      <View style={styles.trackInfo}>
+        <Text style={styles.trackTitle}>{trackTitleSlice(currentTrack)}</Text>
+      </View>
+      <View style={styles.control}>
+        <Ionicons name="play-skip-back" size={34} color="white" />
+        {isPlaying ? (
+          <MaterialCommunityIcons name="pause-circle" size={34} color="white" onPress={handlePlayPause}/>
+        ) : (
+          <FontAwesome name="play-circle" size={34} color="white" onPress={handlePlayPause}/>
+        )}
+        <Ionicons name="play-skip-forward" size={34} color="white" />
+      </View>
+      <View style={styles.volume}>
+        <MaterialIcons name="volume-up" size={34} color="white" />
+      </View>
+        {/* <Button title={isPlaying ? 'Pause' : 'Play'} onPress={handlePlayPause} />
+        <Button title="Stop" onPress={stopAudio} /> */}
+    </LinearGradient>
   );
 }
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

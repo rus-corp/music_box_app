@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
   },
   authContent: {
     width: '45%',
-    height: '80%',
+    height: '90%',
     backgroundColor: 'rgba(255, 255, 255, 0.24)',
     borderRadius: 30,
     // alignItems: 'center',

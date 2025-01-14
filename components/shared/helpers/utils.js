@@ -48,9 +48,14 @@ export const getCollectionFiles = async (collectionName) => {
   const collectionDir = `${baseDir}music_box/${collectionName}/`
   const collectionTracks = await FileSystem.readDirectoryAsync(collectionDir)
   return collectionTracks
-
 }
 
+
+export const getTrackMeta = async (trackUri) => {
+  const file = await FileSystem.getInfoAsync(trackUri)
+  console.log('file', file)
+  return file
+}
 
 
 

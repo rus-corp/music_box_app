@@ -65,8 +65,8 @@ export default function PlayList() {
                 />
               ))}
             </View>
-            {startPlay && <AudioPlayer tracks={tracks} />}
           </ScrollView>
+          {startPlay && <AudioPlayer tracks={tracks} />}
         </View>
       </LinearGradient>
     </View>
