@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet, Button } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { Audio } from 'expo-av';
 import { styles } from './styles'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,7 +10,6 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function AudioPlayer({ tracks, playPress }) {
-  console.log(tracks)
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
@@ -100,8 +99,7 @@ export default function AudioPlayer({ tracks, playPress }) {
       <View style={styles.volume}>
         <MaterialIcons name="volume-up" size={34} color="white" />
       </View>
-        {/* <Button title={isPlaying ? 'Pause' : 'Play'} onPress={handlePlayPause} />
-        <Button title="Stop" onPress={stopAudio} /> */}
+
     </LinearGradient>
   );
 }
