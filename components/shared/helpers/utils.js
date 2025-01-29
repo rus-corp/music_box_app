@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as FileSystem from 'expo-file-system'
 
 
@@ -35,7 +34,7 @@ export const saveFileToFolder = async(folderName, files) => {
     const {title, id } = file
     const fileUri = `${collectionDir}${title}.mp3`
     const result = await FileSystem.downloadAsync(
-      `http://87.228.25.221:8000/api/app_routers/download_file/${id}`,
+      `https://music-sol.ru/api/app_routers/download_file/${id}`,
       fileUri
     )
   }

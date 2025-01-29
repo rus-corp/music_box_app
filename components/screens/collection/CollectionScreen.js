@@ -23,7 +23,7 @@ export default function CollectionScreen({ route }) {
     const filename = `${trackName}.mp3`
     const downloadUri = `${FileSystem.documentDirectory}${filename}`;
     const result = await FileSystem.downloadAsync(
-      `http://87.228.25.221:8000/api/app_routers/download_file/${trackId}`,
+      `https://music-sol.ru/api/app_routers/download_file/${trackId}`,
       downloadUri
     )
     console.log(result, result.uri)

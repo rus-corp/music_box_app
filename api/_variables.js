@@ -1,6 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-export const baseUrl = 'http://87.228.25.221:8000/api/'
+export const baseUrl = 'https://music-sol.ru/api'
 
 
 const getAccessToken = async () => {
@@ -21,7 +21,7 @@ export const backend  = axios.create({
 
 
 export const authBackend = axios.create({
-  baseURL: 'http://87.228.25.221:8000/api/'
+  baseURL: 'https://music-sol.ru/api'
 })
 
 

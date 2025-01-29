@@ -7,7 +7,7 @@ import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles } from 
 
 
 export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay }) {
-  const imageSource = 'http://87.228.25.221:8000/api' + image
+  const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
   const [folderExsist, setFolderExsist] = React.useState(false)
   const handlePress = () => {
