@@ -35,7 +35,10 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     paddingTop: '4%',
     paddingBottom: '4%',
-    backgroundColor: 'red'
-  }
+    backgroundColor: 'skyblue'
+  },
+  btnPressed: {
+    transform: [{ scale: 0.9 }]
+  },
 })
 

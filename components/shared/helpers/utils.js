@@ -57,4 +57,14 @@ export const getTrackMeta = async (trackUri) => {
 }
 
 
+export const getRandomTrack = (min, max) => {
+  return Math.floor(Math.random() * (max - min)) + min
+}
+
+
+export const getNextTrackUri = async (trackUri) => {
+  const fileInfo = await FileSystem.getInfoAsync(track)
+  return fileInfo
+}
+
 

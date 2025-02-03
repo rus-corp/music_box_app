@@ -39,6 +39,13 @@
         "READ_EXTERNAL_STORAGE",
         "WRITE_EXTERNAL_STORAGE"
       ],
+      "config": {
+        "androidManifest": {
+          "application": {
+            "android:requestLegacyExternalStorage": "true"
+          }
+        }
+      },
       "package": "com.ruslanpru.music_box_app"
     },
     "web": {

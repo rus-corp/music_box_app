@@ -16,19 +16,11 @@ import { getClientCollections } from '../../../api';
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
   const [collections, setCollections] = React.useState([])
-  if (!user) {
-    return null
-  }
-  const [startPlay, setStartPlay] = React.useState(true)
   const [tracks, setTracks] = React.useState([])
-  const handleStartPlay = (data) => {
-    setTracks(data)
-  }
 
-  const getTracks = async (collectionName) => {
-    const tracks = await getCollectionFiles(collectionName)
-    console.log(tracks)
-    return tracks
+  const handleStartPlay = (data) => {
+    console.log('tracks: ', data)
+    setTracks(data)
   }
 
   const clientCollections = async () => {
@@ -61,12 +53,11 @@ export default function PlayList() {
                 trackCount={collectionItem.track_count}
                 collectionId={collectionItem.id}
                 startPlay={handleStartPlay}
-
                 />
               ))}
             </View>
           </ScrollView>
-          {startPlay && <AudioPlayer tracks={tracks} />}
+          <AudioPlayer tracks={tracks} />
         </View>
       </LinearGradient>
     </View>

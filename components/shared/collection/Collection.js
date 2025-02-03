@@ -9,6 +9,7 @@ import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles } from 
 export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay }) {
   const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
+  const [press, setPress] = React.useState(false)
   const [folderExsist, setFolderExsist] = React.useState(false)
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { title: collectionTitle })
@@ -51,11 +52,25 @@ export default function Collection({ collectionTitle, image, trackCount, collect
           <Text style={styles.desc}>{trackCount} трек</Text>
         </View>
         {folderExsist ? (
-          <Pressable style={styles.collectionBtn} onPress={handleStartPlay}>
-            <Text>Воспроизвести</Text>
+          <Pressable
+          onPressIn={() => setPress(true)}
+          onPressOut={() => setPress(false)}
+          style={({ pressed }) => [
+            styles.collectionBtn,
+            pressed || press ? styles.btnPressed : null 
+          ]}
+          onPress={handleStartPlay}>
+            <Text>Играть</Text>
           </Pressable>
         ): (
-          <Pressable style={styles.collectionBtn} onPress={handleCreateDir}>
+          <Pressable
+          onPressIn={() => setPress(true)}
+          onPressOut={() => setPress(false)}
+          style={({ pressed }) => [
+            styles.collectionBtn,
+            pressed || press ? styles.btnPressed : null 
+          ]}
+          onPress={handleCreateDir}>
             <Text>Загрузить</Text>
           </Pressable>
         )}

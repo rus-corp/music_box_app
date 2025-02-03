@@ -20,6 +20,8 @@ export const styles = StyleSheet.create({
   },
   imageContent: {
     alignItems: 'center',
+    width: '100%',
+    height: '55%'
   },
   formData: {
     width: '100%',
