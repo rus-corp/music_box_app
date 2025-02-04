@@ -2,16 +2,17 @@ import { StyleSheet } from "react-native"
 
 export const styles = StyleSheet.create({
   headerContainer: {
+    width: '100%',
     height: '15%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 100
+    gap: 50
   },
   headerImage: {
     marginLeft: '10%'
   },
   headerContent: {
-    width: '30%',
+    width: '40%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'

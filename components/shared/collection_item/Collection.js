@@ -12,7 +12,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
   const [press, setPress] = React.useState(false)
   const [folderExsist, setFolderExsist] = React.useState(false)
   const handlePress = () => {
-    navigation.navigate('CollectionDetails', { title: collectionTitle })
+    navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
   const handleCreateDir = async() => {
     const collectionTracks = await getCollectionTracks(collectionId)

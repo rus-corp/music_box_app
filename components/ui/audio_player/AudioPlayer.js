@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Alert } from 'react-native';
-import { Audio } from 'expo-av';
+import { Audio, InterruptionModeAndroid } from 'expo-av';
 import { styles } from './styles'
 import { LinearGradient } from 'expo-linear-gradient';
 import * as FileSystem from 'expo-file-system';
@@ -8,66 +8,59 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { getNextTrackUri } from '../../shared/helpers/utils';
+import { getRandomTrack } from '../../shared/helpers/utils';
 
 
 export default function AudioPlayer({ tracks, playPress }) {
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
+  const [currentTrack, setCurrentTrack] = React.useState()
+  const randomTracks = getRandomTrack(0, tracks.length)
 
-  const trackTitleSlice = (trackName) => {
-    if (trackName) {
-      const slicedName = trackName.slice(0, -4)
-      return slicedName
-    } else {
-      return ''
-    }
-  }
+  const trackTitleSlice = (trackName) => trackName ? trackName.slice(0, -4) : ''
   React.useEffect(() => {
-    if (tracks && tracks.length > 0) {
-      setCurrentTrack(tracks[0])
+    if (!currentTrack && tracks.length > 0) {
+      setCurrentTrack(tracks[randomTracks])
+      Audio.setAudioModeAsync({
+        staysActiveInBackground: true,
+        interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: true
+      })
+      return sound
+        ? () => {
+          sound.unloadAsync()
+        }
+        : undefined
     }
-  }, [tracks])
+  }, [tracks, sound])
 
-  // React.useEffect(() => {
-  //   return() => {
-  //     if (sound) {
-  //       sound.unloadAsync()
-  //     }
-  //   }
-  // }, [sound])
   React.useEffect(() => {
     if (!sound) return;
-  
     const statusUpdate = async (status) => {
       if (status.didJustFinish) {
         const currentIndx = tracks.indexOf(currentTrack);
         const nextIndex = (currentIndx + 1) % tracks.length;
         const nextTrack = tracks[nextIndex];
         const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
-  
         await sound.unloadAsync();
-  
-        const { sound: newSound } = await Audio.Sound.createAsync(
+        const {sound: newSound} = await Audio.Sound.createAsync(
           { uri: nextFileUri },
           { shouldPlay: true }
-        );
-  
-        setSound(newSound);
-        setIsPlaying(true);
-        setCurrentTrack(nextTrack);
+        )
+        await setSound(newSound)
+        setIsPlaying(true)
+        setCurrentTrack(nextTrack)
       }
-    };
-  
-    sound.setOnPlaybackStatusUpdate(statusUpdate);
-  
+    }
+    sound.setOnPlaybackStatusUpdate(statusUpdate)
     return () => {
-      sound.setOnPlaybackStatusUpdate(null);
-    };
-  }, [sound, currentTrack, tracks]);
+      sound.setOnPlaybackStatusUpdate(null)
+    }
+  }, [sound, tracks, currentTrack])
 
   async function loadAndPlayAudio() {
+    if (!currentTrack) return;
     console.log('loadAndPlayAudio')
     const localUri = `${FileSystem.documentDirectory}music_box/Boorn/${currentTrack}`;
     console.log('localUri: ', localUri)
@@ -80,27 +73,8 @@ export default function AudioPlayer({ tracks, playPress }) {
       { uri: fileInfo.uri },
       { shouldPlay: true }
     );
-    setSound(sound);
+    await setSound(sound);
     setIsPlaying(true);
-
-    sound.setOnPlaybackStatusUpdate(async (status) => {
-      if (status.didJustFinish) {
-        const currentIndx = tracks.indexOf(currentTrack)
-        const nextIndex = (currentIndx + 1) % tracks.length
-        const nextTrack = tracks[nextIndex]
-        console.log('nextTrack: ', nextTrack)
-        const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`
-        await sound.unloadAsync()
-        console.log('nextFileUri: ', nextFileUri)
-        const { sound: newSound } = await Audio.Sound.createAsync({
-          uri: nextFileUri,
-          shouldPlay: true
-        })
-        setSound(newSound)
-        setIsPlaying(true);
-        setCurrentTrack(nextTrack)
-      }
-    });
   }
 
   async function handlePlayPause() {
@@ -113,7 +87,7 @@ export default function AudioPlayer({ tracks, playPress }) {
         setIsPlaying(true);
       }
     } else {
-      loadAndPlayAudio();
+      await loadAndPlayAudio();
     }
   }
 

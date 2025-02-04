@@ -6,9 +6,8 @@ import Header from '../../ui/header/Header';
 import { Text, View, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
-import Collection from '../../shared/collection/Collection';
+import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
-import { getCollectionFiles } from '../../shared/helpers/utils';
 
 import { getClientCollections } from '../../../api';
 

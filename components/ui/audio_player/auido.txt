@@ -1,0 +1,151 @@
+  const [sound, setSound] = React.useState(null);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
+  
+  const trackTitleSlice = (trackName) => {
+    if (trackName) {
+      const slicedName = trackName.slice(0, -4)
+      return slicedName
+    } else {
+      return ''
+    }
+  }
+
+  React.useEffect(() => {
+    if (tracks && tracks.length > 0) {
+      setCurrentTrack(tracks[0])
+    }
+  }, [tracks])
+  React.useEffect(() => {
+    return() => {
+      if (sound) {
+        sound.unloadAsync()
+      }
+    }
+  }, [sound])
+
+  async function loadAndPlayAudio() {
+    console.log(currentTrack)
+    const trackUri = `file:///data/user/0/host.exp.exponent/files/music_box/Boorn/${currentTrack}`
+    console.log('trackUri', trackUri)
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: `file:///data/user/0/host.exp.exponent/files/music_box/Boorn/${currentTrack}` },
+      { shouldPlay: true }
+    );
+    setSound(sound);
+    setIsPlaying(true);
+
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) {
+        const currentIndx = tracks.indexOf(currentTrack)
+        const nextIndex = (currentIndx + 1) % tracks.length
+        setCurrentTrack(tracks[nextIndex])
+        setIsPlaying(false);
+      }
+    });
+  }
+
+  async function handlePlayPause() {
+    if (sound) {
+      if (isPlaying) {
+        await sound.pauseAsync();
+        setIsPlaying(false);
+      } else {
+        await sound.playAsync();
+        setIsPlaying(true);
+      }
+    } else {
+      loadAndPlayAudio();
+    }
+  }
+
+    React.useEffect(() => {
+    if (!sound) return;
+    if (tracks && tracks.length > 0) {
+      const statusUpdate = async (status) => {
+        if (status.didJustFinish) {
+          const currentIndx = tracks.indexOf(currentTrack);
+          const nextIndex = (currentIndx + 1) % tracks.length;
+          const nextTrack = tracks[nextIndex];
+          const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
+    
+          await sound.unloadAsync();
+    
+          const { sound: newSound } = await Audio.Sound.createAsync(
+            { uri: nextFileUri },
+            { shouldPlay: true }
+          );
+    
+          setSound(newSound);
+          setIsPlaying(true);
+          setCurrentTrack(nextTrack);
+        }
+      };
+    
+      sound.setOnPlaybackStatusUpdate(statusUpdate);
+    
+      return () => {
+        sound.setOnPlaybackStatusUpdate(null);
+      };
+    }
+  
+  }, [sound, currentTrack, tracks]);
+
+
+      sound.setOnPlaybackStatusUpdate(async (status) => {
+      if (status.didJustFinish) {
+        const currentIndx = tracks.indexOf(currentTrack)
+        const nextIndex = (currentIndx + 1) % tracks.length
+        const nextTrack = tracks[nextIndex]
+        console.log('nextTrack: ', nextTrack)
+        const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`
+        await sound.unloadAsync()
+        console.log('nextFileUri: ', nextFileUri)
+        const { sound: newSound } = await Audio.Sound.createAsync({
+          uri: nextFileUri,
+          shouldPlay: true
+        })
+        setSound(newSound)
+        setIsPlaying(true);
+        setCurrentTrack(nextTrack)
+      }
+    });
+
+
+      React.useEffect(() => {
+    if (tracks && tracks.length > 0) {
+      setCurrentTrack(tracks[0])
+    }
+  }, [tracks])
+
+  React.useEffect(() => {
+    if (!sound) return;
+    if (tracks && tracks.length > 0) {
+      const statusUpdate = async (status) => {
+        if (status.didJustFinish) {
+          const currentIndx = tracks.indexOf(currentTrack);
+          const nextIndex = (currentIndx + 1) % tracks.length;
+          const nextTrack = tracks[nextIndex];
+          const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
+    
+          await sound.unloadAsync();
+    
+          const { sound: newSound } = await Audio.Sound.createAsync(
+            { uri: nextFileUri },
+            { shouldPlay: true }
+          );
+    
+          setSound(newSound);
+          setIsPlaying(true);
+          setCurrentTrack(nextTrack);
+        }
+      };
+    
+      sound.setOnPlaybackStatusUpdate(statusUpdate);
+    
+      return () => {
+        sound.setOnPlaybackStatusUpdate(null);
+      };
+    }
+  
+  }, [sound, currentTrack, tracks]);
