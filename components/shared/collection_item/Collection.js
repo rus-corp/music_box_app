@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, Button, Pressable } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Pressable, Alert } from 'react-native';
 import { styles } from './styles'
-import { baseUrl, getCollectionTracks } from '../../../api';
+import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
 import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles } from '../helpers/utils';
 
@@ -15,19 +15,21 @@ export default function Collection({ collectionTitle, image, trackCount, collect
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
   const handleCreateDir = async() => {
-    const collectionTracks = await getCollectionTracks(collectionId)
+    const collectionTracks = await getCollectionBases(collectionId)
     if (collectionTracks.status === 200) {
-      console.log(collectionTracks.data.tracks)
-      const filesList = collectionTracks.data.tracks
-      await saveFileToFolder(collectionTitle, filesList)
-      setFolderExsist(true)
+      const bases = collectionTracks.data.base_collection_association
+      console.log(collectionTracks.data)
+      console.log(bases)
+      // console.log(collectionTracks.data.tracks)
+      // const filesList = collectionTracks.data.tracks
+      // await saveFileToFolder(collectionTitle, filesList)
+      // setFolderExsist(true)
     }else {
       console.log('server error')
     }
-    
   }
   const handleStartPlay = async () => {
-    const tracks = await getCollectionFiles(collectionTitle)
+    const tracks = await getCollectionFiles(collectionId, collectionTitle)
     startPlay(tracks)
   }
   const handleDeleteFolder = async() => {
@@ -37,8 +39,25 @@ export default function Collection({ collectionTitle, image, trackCount, collect
 
   React.useEffect(() => {
     const handleCheckFolder = async () => {
-      const exsist = await checkFolder(collectionTitle)
-      setFolderExsist(exsist)
+      const exsist = await checkFolder(collectionId, collectionTitle)
+      const trackCount = exsist.shift()
+      console.log(exsist)
+      for (const item of exsist) {
+        if (item.exsist === false) {
+          Alert.alert(`Необходимо загрузить треки ${trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
+            { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
+            { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+          ])
+        }
+      }
+      // Object.entries(exsist).forEach(([key, value]) => {
+      //   if (typeof value === 'boolean' && !value) {
+      //     Alert.alert(`Необходимо загрузить треки ${exsist.trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
+      //       { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
+      //       { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+      //     ])
+      //   }
+      // })
     }
     handleCheckFolder()
   }, [collectionTitle])

@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
 
 
@@ -26,6 +26,8 @@ export default function PlayList() {
     const response = await getClientCollections()
     if (response.status === 200) {
       setCollections(response.data)
+      // const clietCollections = response.data.map(item => item.name)
+      // await AsyncStorage.setItem('clientCollections', JSON.stringify(clientCollections));
     }
   }
 
