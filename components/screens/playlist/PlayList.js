@@ -24,6 +24,11 @@ export default function PlayList() {
 
   const clientCollections = async () => {
     const response = await getClientCollections()
+    console.log(response.data)
+    console.log('bases', response.data[0].base_collection_association)
+    // берем название баз из ответа и проверяем есть ли папка с таким названием
+    // если нет, то выводим алерт на загрузку треков 
+    // создаем папки с названием баз и загружаем в нее треки
     if (response.status === 200) {
       setCollections(response.data)
       // const clietCollections = response.data.map(item => item.name)

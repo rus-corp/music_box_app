@@ -15,18 +15,18 @@ export default function Collection({ collectionTitle, image, trackCount, collect
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
   const handleCreateDir = async() => {
-    const collectionTracks = await getCollectionBases(collectionId)
-    if (collectionTracks.status === 200) {
-      const bases = collectionTracks.data.base_collection_association
-      console.log(collectionTracks.data)
-      console.log(bases)
-      // console.log(collectionTracks.data.tracks)
-      // const filesList = collectionTracks.data.tracks
-      // await saveFileToFolder(collectionTitle, filesList)
-      // setFolderExsist(true)
-    }else {
-      console.log('server error')
-    }
+    // const collectionTracks = await getCollectionBases(collectionId)
+    // if (collectionTracks.status === 200) {
+    //   const bases = collectionTracks.data.base_collection_association
+    //   console.log(collectionTracks.data)
+    //   console.log(bases)
+    //   // console.log(collectionTracks.data.tracks)
+    //   // const filesList = collectionTracks.data.tracks
+    //   // await saveFileToFolder(collectionTitle, filesList)
+    //   // setFolderExsist(true)
+    // }else {
+    //   console.log('server error')
+    // }
   }
   const handleStartPlay = async () => {
     const tracks = await getCollectionFiles(collectionId, collectionTitle)

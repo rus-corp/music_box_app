@@ -1,6 +1,12 @@
 import * as FileSystem from 'expo-file-system'
 import { getCollectionBases, getBaseTracks, downloadAudio } from '../../../api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
+export const checkUser = async () => {
+  const user = await AsyncStorage.getItem('access_token')
+  return user
+}
 
 export const checkFolder = async (collectionId, collectionName) => {
   const collectionBases = await getCollectionBases(collectionId);

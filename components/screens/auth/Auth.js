@@ -10,6 +10,7 @@ import { View,
 import querystring from 'querystring'
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
+import { checkUser } from '../../shared/helpers/utils';
 
 import { styles } from './styles'
 import { AuthButton } from '../../ui/button/AuthButton';
@@ -22,6 +23,7 @@ import { authPost } from '../../../api';
 
 
 export default function Auth() {
+  const user = checkUser()
   const [responseData, setResponseData] = React.useState('')
   const [userData, setUserData] = React.useState({
     username: '',
@@ -59,6 +61,12 @@ export default function Auth() {
       setResponseData(response.data.detail)
     }
   }
+
+  React.useEffect(() => {
+    if (user) {
+      navigate.navigate('PlayList')
+    }
+  }, [])
 
 
   return(

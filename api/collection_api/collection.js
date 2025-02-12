@@ -32,7 +32,7 @@ export const getCollectionBases = async (collectionId) => {
     )
     return response
   } catch (error) {
-    console.error(error.response.data)
+    console.error(error)
   }
 }
 
