@@ -29,13 +29,18 @@ export const checkFolder = async (collectionId, collectionName) => {
   }
 }
 
-const createFolder = async(baseName) => {
-  const folderUri = `${FileSystem.documentDirectory}music_box/${baseName}`
-  try {
-    await FileSystem.makeDirectoryAsync(folderUri, { intermediates: true })
-    return true
-  } catch (error) {
-    return false
+export const createFolder = async(baseName) => {
+  const folderUri = `${FileSystem.documentDirectory}${baseName}`
+  const folderInfo = await FileSystem.getInfoAsync(folderUri)
+  if (!folderInfo.exists) {
+    try {
+      const createdFolderUri = await FileSystem.makeDirectoryAsync(folderUri, { intermediates: true })
+      return createdFolderUri
+    } catch (error) {
+      return false
+    }
+  } else {
+    return folderUri
   }
 }
 
@@ -55,36 +60,48 @@ export const deleteFolder = async(folderTitle) => {
 
 
 
-export const saveFileToFolder = async(folderName, files) => {
-  const collectionDir = `${FileSystem.documentDirectory}music_box/${folderName}/`
-  const dirInfo = await FileSystem.getInfoAsync(collectionDir)
+export const saveFileToFolder = async(folderUri, filesList) => {
+  console.log('folderUri', folderUri)
+  console.log('filesList', filesList)
+  // const collectionDir = `${FileSystem.documentDirectory}music_box/${folderName}/`
+  const dirInfo = await FileSystem.getInfoAsync(folderUri)
+  console.log('dirInfo', dirInfo)
+  let downloadTrackCount = 0
+  let errorDownloadTrackCount = 0
   if (!dirInfo.exists) {
-    await FileSystem.makeDirectoryAsync(collectionDir, { intermediates: true })
+    await FileSystem.makeDirectoryAsync(folderUri, { intermediates: true })
   }
-  for (const file of files) {
+  console.log('before for fileLists')
+  for (const file of filesList) {
+    console.log('file', file)
     const {title, id } = file
-    const fileUri = `${collectionDir}${title}.mp3`
-    const result = await FileSystem.downloadAsync(
-      `https://music-sol.ru/api/app_routers/download_file/${id}`,
-      fileUri
-    )
+    console.log('title', title)
+    const fileUri = `${folderUri}${title}.mp3`
+    console.log('fileUri', fileUri)
+    try {
+      console.log('track download', title)
+      // const result = await FileSystem.downloadAsync(
+      //   `https://music-sol.ru/api/app_routers/download_file/${id}`,
+      //   fileUri
+      // )
+      downloadTrackCount += 1
+    } catch (e) {
+      console.error(e)
+      errorDownloadTrackCount += 1
+    }
   }
-  return collectionDir
+  return {
+    'downloadTrackCount': downloadTrackCount,
+    'errorDownloadTrackCount': errorDownloadTrackCount
+  }
 }
 
 
 export const getCollectionFiles = async (collectionName) => {
   const baseDir = FileSystem.documentDirectory
-  const collectionDir = `${baseDir}music_box/${collectionName}/`
+  const collectionDir = `${baseDir}${collectionName}/`
   const collectionTracks = await FileSystem.readDirectoryAsync(collectionDir)
   return collectionTracks
-}
-
-
-export const getTrackMeta = async (trackUri) => {
-  const file = await FileSystem.getInfoAsync(trackUri)
-  console.log('file', file)
-  return file
 }
 
 

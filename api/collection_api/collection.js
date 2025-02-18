@@ -36,11 +36,11 @@ export const getCollectionBases = async (collectionId) => {
   }
 }
 
-export const getBaseTracks = async (baseId) => {
+export const getBaseTracks = async (baseId, offset) => {
   const reqData = {
     "collection_id": baseId,
     "limit": 50,
-    "offset": 0
+    "offset": offset
   }
   try {
     const response = await backend.post(

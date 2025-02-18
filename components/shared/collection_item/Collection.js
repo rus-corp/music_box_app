@@ -29,7 +29,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
     // }
   }
   const handleStartPlay = async () => {
-    const tracks = await getCollectionFiles(collectionId, collectionTitle)
+    const tracks = await getCollectionFiles(collectionTitle)
     startPlay(tracks)
   }
   const handleDeleteFolder = async() => {
@@ -43,12 +43,12 @@ export default function Collection({ collectionTitle, image, trackCount, collect
       const trackCount = exsist.shift()
       console.log(exsist)
       for (const item of exsist) {
-        if (item.exsist === false) {
-          Alert.alert(`Необходимо загрузить треки ${trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
-            { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
-            { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
-          ])
-        }
+        // if (item.exsist === false) {
+        //   Alert.alert(`Необходимо загрузить треки ${trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
+        //     { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
+        //     { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+        //   ])
+        // }
       }
       // Object.entries(exsist).forEach(([key, value]) => {
       //   if (typeof value === 'boolean' && !value) {

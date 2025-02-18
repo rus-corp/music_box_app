@@ -3,14 +3,14 @@ import React from 'react';
 import { styles } from './styles'
 
 import Header from '../../ui/header/Header';
-import { Text, View, ScrollView } from 'react-native';
+import { Text, View, ScrollView, Button, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
-
+import { getSavedCollections, saveCollections, checkFolderDownloadTracks } from './utils';
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
@@ -22,8 +22,27 @@ export default function PlayList() {
     setTracks(data)
   }
 
+  const handlePress = async (collectionData) => {
+    await checkFolderDownloadTracks(collectionData)
+  }
+
   const clientCollections = async () => {
-    const response = await getClientCollections()
+    const clientSavedCollections = await getSavedCollections()
+    console.log('clientSavedCollections', clientSavedCollections)
+    if (!clientSavedCollections.length > 0) {
+      const response = await getClientCollections()
+      if (response.status === 200) {
+        await saveCollections(response.data)
+        setCollections(response.data)
+        Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
+          { text: 'Загрузить', onPress: () => handlePress(response.data) },
+          { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+        ])
+      }
+    } else {
+      setCollections(clientSavedCollections)
+    }
+
     console.log(response.data)
     console.log('bases', response.data[0].base_collection_association)
     // берем название баз из ответа и проверяем есть ли папка с таким названием
@@ -36,6 +55,12 @@ export default function PlayList() {
     }
   }
 
+  const deleteStorageCollections = async () => {
+    await AsyncStorage.removeItem('clientCollections')
+    // const clientSavedCollections = await getSavedCollections()
+    console.log('collections deleted')
+  }
+
   React.useEffect(() => {
     clientCollections()
   }, [user])
@@ -43,6 +68,7 @@ export default function PlayList() {
   return(
     <View style={styles.mainContainer}>
       <Header />
+      <Button title="Delete collections" onPress={deleteStorageCollections} />
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>
@@ -52,7 +78,7 @@ export default function PlayList() {
           <View style={styles.line}></View>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.collectionList}>
-              {collections.map((collectionItem) => (
+              {collections?.map((collectionItem) => (
                 <Collection key={collectionItem.id}
                 collectionTitle={collectionItem.name}
                 image={collectionItem.image}
