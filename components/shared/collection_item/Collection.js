@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, Pressable, Alert } from 'react-nat
 import { styles } from './styles'
 import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles } from '../helpers/utils';
+import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles, getStartTrackList } from '../helpers/utils';
 
 
 export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay }) {
@@ -29,7 +29,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
     // }
   }
   const handleStartPlay = async () => {
-    const tracks = await getCollectionFiles(collectionTitle)
+    const tracks = await getStartTrackList()
     startPlay(tracks)
   }
   const handleDeleteFolder = async() => {
@@ -39,25 +39,8 @@ export default function Collection({ collectionTitle, image, trackCount, collect
 
   React.useEffect(() => {
     const handleCheckFolder = async () => {
-      const exsist = await checkFolder(collectionId, collectionTitle)
-      const trackCount = exsist.shift()
-      console.log(exsist)
-      for (const item of exsist) {
-        // if (item.exsist === false) {
-        //   Alert.alert(`Необходимо загрузить треки ${trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
-        //     { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
-        //     { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
-        //   ])
-        // }
-      }
-      // Object.entries(exsist).forEach(([key, value]) => {
-      //   if (typeof value === 'boolean' && !value) {
-      //     Alert.alert(`Необходимо загрузить треки ${exsist.trackCount} шт. для ${collectionTitle}`, 'Нажмите на кнопку "Загрузить"', [
-      //       { text: 'Загрузить', onPress: () => console.log('OK Pressed') },
-      //       { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
-      //     ])
-      //   }
-      // })
+      const exsist = await checkFolder(collectionTitle)
+      setFolderExsist(exsist)
     }
     handleCheckFolder()
   }, [collectionTitle])
@@ -68,7 +51,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
         <Image style={styles.image} source={{uri: imageSource}}/>
         <View style={styles.content}>
           <Text style={styles.title}>{collectionTitle}</Text>
-          <Text style={styles.desc}>{trackCount} трек</Text>
+          <Text style={styles.desc}>{trackCount} треков</Text>
         </View>
         {folderExsist ? (
           <Pressable

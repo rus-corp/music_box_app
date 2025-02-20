@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Navigation } from './router/router';
 import AppProvider from './hooks/AppContext';
 
+// import NavigationWrapper from './router/router';
 
 
 

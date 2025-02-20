@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { createFolder, saveFileToFolder } from '../../shared/helpers/utils'
 import { getBaseTracks } from "../../../api"
+import { deleteFolder } from "../../shared/helpers/utils"
 
 
 export const saveCollections = async (collectionNames) => {
@@ -31,7 +32,6 @@ export const getSavedCollections = async () => {
 export const checkFolderDownloadTracks = async(clientCollectionData) => {
   for (const collection of clientCollectionData) {
     const collectionTrackCount = collection.track_count
-    console.log('collectionTrackCount', collectionTrackCount)
     for (const base of collection.base_collection_association) {
       const baseName = base.base_collection.name
       const baseId = base.base_collection.id
@@ -41,13 +41,11 @@ export const checkFolderDownloadTracks = async(clientCollectionData) => {
       let offset = 0
       while (trackCount < collectionTrackCount) {
         const baseTracks = await getBaseTracks(baseId, offset)
-        console.log('baseTracks', baseTracks)
         if (baseTracks.status === 200) {
           let tracks = baseTracks.data.tracks
           if (tracks.length === 0) {
             break
           }
-          console.log('47 tracks', tracks)
           const savedFiles = await saveFileToFolder(folderUri, tracks)
           console.log('tracks saved', savedFiles)
           trackCount += tracks.length
@@ -59,4 +57,26 @@ export const checkFolderDownloadTracks = async(clientCollectionData) => {
     }
   }
   return true
+}
+
+
+
+
+
+
+export const clearApp = async () => {
+  console.log('clearApp')
+  const clientCollections = await AsyncStorage.getItem('clientCollections')
+  const clientCollectionsParse = JSON.parse(clientCollections)
+  console.log('clientCollectionsParse', clientCollectionsParse)
+  for (const collection of clientCollectionsParse) {
+    console.log('collection', collection)
+    for (const base of collection.base_collection_association) {
+      const baseName = base.base_collection.name
+      const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
+      console.log('baseName', correctName)
+      await deleteFolder(correctName)
+    }
+  }
+  await AsyncStorage.removeItem('clientCollections')
 }

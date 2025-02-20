@@ -5,7 +5,12 @@ export const styles = StyleSheet.create({
   mainContainer: {
     flex: 1
   },
-  mainContent: {
-    flex: 1
+  tracksList: {
+    flexDirection: 'column',
+    paddingLeft: '10%',
+    paddingRight: '10%',
+  },
+  trackItem: {
+    margin: 3
   },
 })

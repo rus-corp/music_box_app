@@ -12,10 +12,11 @@ import { getRandomTrack } from '../../shared/helpers/utils';
 
 
 export default function AudioPlayer({ tracks, playPress }) {
+  console.log('tracks: ', tracks)
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [currentTrack, setCurrentTrack] = React.useState()
-  const randomTracks = getRandomTrack(0, tracks.length)
+  const randomTracks = getRandomTrack(0, tracks?.length)
 
   const trackTitleSlice = (trackName) => trackName ? trackName.slice(0, -4) : ''
   React.useEffect(() => {
@@ -62,7 +63,7 @@ export default function AudioPlayer({ tracks, playPress }) {
   async function loadAndPlayAudio() {
     if (!currentTrack) return;
     console.log('loadAndPlayAudio')
-    const localUri = `${FileSystem.documentDirectory}music_box/Boorn/${currentTrack}`;
+    const localUri = `${FileSystem.documentDirectory}${currentTrack}`;
     console.log('localUri: ', localUri)
     const fileInfo = await FileSystem.getInfoAsync(localUri);
     console.log('fileInfo: ', fileInfo.uri)

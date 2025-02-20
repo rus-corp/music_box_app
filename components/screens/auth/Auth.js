@@ -23,14 +23,14 @@ import { authPost } from '../../../api';
 
 
 export default function Auth() {
-  const user = checkUser()
+  const { user } = React.useContext(AppContext)
   const [responseData, setResponseData] = React.useState('')
   const [userData, setUserData] = React.useState({
     username: '',
     password: ''
   })
   const { height, width } = Dimensions.get('window')
-  const navigate = useNavigation()
+  const navigation = useNavigation()
   const { setUser } = React.useContext(AppContext)
   
   const handleChangeEmail = (text) => {
@@ -63,10 +63,16 @@ export default function Auth() {
   }
 
   React.useEffect(() => {
-    if (user) {
-      navigate.navigate('PlayList')
+    const checkToken = async() => {
+      const userData = await checkUser()
+      if (userData) {
+        navigation.navigate('PlayList')
+      } else {
+        navigation.navigate('Auth')
+      }
     }
-  }, [])
+    checkToken()
+  }, [user])
 
 
   return(

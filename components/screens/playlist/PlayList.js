@@ -10,7 +10,7 @@ import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
-import { getSavedCollections, saveCollections, checkFolderDownloadTracks } from './utils';
+import { getSavedCollections, saveCollections, checkFolderDownloadTracks, clearApp } from './utils';
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
@@ -42,21 +42,24 @@ export default function PlayList() {
     } else {
       setCollections(clientSavedCollections)
     }
+    // console.log(response.data)
+    // console.log('bases', response.data[0].base_collection_association)
+    // if (response.status === 200) {
+    //   setCollections(response.data)
+    //   // const clietCollections = response.data.map(item => item.name)
+    //   // await AsyncStorage.setItem('clientCollections', JSON.stringify(clientCollections));
+    // }
+  }
 
-    console.log(response.data)
-    console.log('bases', response.data[0].base_collection_association)
-    // берем название баз из ответа и проверяем есть ли папка с таким названием
-    // если нет, то выводим алерт на загрузку треков 
-    // создаем папки с названием баз и загружаем в нее треки
-    if (response.status === 200) {
-      setCollections(response.data)
-      // const clietCollections = response.data.map(item => item.name)
-      // await AsyncStorage.setItem('clientCollections', JSON.stringify(clientCollections));
-    }
+  const handleClearApp = async() => {}
+
+  const handleDeleteAccess = async () => {
+    const token = await AsyncStorage.removeItem('access_token')
   }
 
   const deleteStorageCollections = async () => {
-    await AsyncStorage.removeItem('clientCollections')
+    await clearApp()
+    // await AsyncStorage.removeItem('clientCollections')
     // const clientSavedCollections = await getSavedCollections()
     console.log('collections deleted')
   }
@@ -69,6 +72,7 @@ export default function PlayList() {
     <View style={styles.mainContainer}>
       <Header />
       <Button title="Delete collections" onPress={deleteStorageCollections} />
+      <Button title='Delete Access' onPress={handleDeleteAccess} />
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>

@@ -16,7 +16,6 @@ export default function CollectionScreen({ route }) {
 
   const collectionTracks = async (collectionName) => {
     const tracks = await getCollectionFiles(collectionName)
-    console.log(tracks)
     setCollectionTracksData(tracks)
   }
 
@@ -30,13 +29,29 @@ export default function CollectionScreen({ route }) {
       <LinearGradient
       style={styles.mainContent}
       colors={['rgba(120, 135, 251, 0.52)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
-        <CollectionHeader collectionTitle={title} collectionImage={image}/>
-        {collectionTracksData.map((collectionTrack, indx) => (
-          <View  key={indx}>
-            <Text>{collectionTrack}</Text>
-          </View>
-        ))}
+        <CollectionHeader
+        collectionTitle={title}
+        collectionImage={image}
+        tracksCount={collectionTracksData.length}
+        />
+        <View style={styles.tracksList}>
+          {collectionTracksData.map((collectionTrack, indx) => (
+            <TrackItem key={indx}
+            trackTitle={collectionTrack}
+            />
+          ))}
+        </View>
       </LinearGradient>
+    </View>
+  );
+}
+
+
+
+function TrackItem ({ trackTitle }) {
+  return (
+    <View style={styles.trackItem}>
+      <Text>{trackTitle}</Text>
     </View>
   );
 }
