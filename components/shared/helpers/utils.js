@@ -156,20 +156,50 @@ export const getNextTrackUri = async (trackUri) => {
 
 
 
-export const getStartTrackList = async() => {
+export const getStartTrackList = async(collectionTitle) => {
   const clientCollectionsJson = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollectionsJson)
-  let tracks = []
-  for (const collection of clientCollectionParse) {
-    for (const base of collection.base_collection_association) {
-      console.log('base', base.base_collection.name)
-      console.log('track quantity', base.track_quantity)
-      const baseName = base.base_collection.name
-      const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
-      const baseDir = `${FileSystem.documentDirectory}${correctName}/`
-      const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-      tracks = [...tracks, ...baseTracks]
+  const collection = clientCollectionParse.find(col => col.name === collectionTitle)
+  let baseTracksPath = {}
+  let baseTrackCount = {}
+  for (const base of collection.base_collection_association) {
+    const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
+    const trackQuant = base.track_quantity
+    baseTrackCount[baseName] = base.track_quantity
+    const baseDir = `${FileSystem.documentDirectory}${baseName}`
+    const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
+    const trackPath = baseTracks.map((track) => `${baseDir}/${track}`)
+    baseTracksPath[baseName] = trackPath
+  }
+  const tracks = createTrackList(baseTracksPath, baseTrackCount)
+  return tracks
+}
+
+
+const getRandomFiles = (filesList, count) => {
+  return filesList.sort(() => Math.random() - 0.5).slice(0, Math.min(count, filesList.length))
+}
+
+
+const createTrackList = (baseTracksPath, baseTrackCount) => {
+  let resultTracks = []
+  let trackQueues = {}
+  let totalTrackCount = 0
+
+  for (const base in baseTrackCount) {
+    trackQueues[base] = [...baseTracksPath[base]]
+    totalTrackCount += trackQueues[base].length
+  }
+
+  while (totalTrackCount > 0) {
+    for (const base in baseTrackCount) {
+      const needCount = baseTrackCount[base]
+      if (trackQueues[base] && trackQueues[base].length > 0) {
+        const selectedTrack = trackQueues[base].slice(0, needCount)
+        resultTracks.push(...selectedTrack)
+        totalTrackCount -= selectedTrack.length
+      }
     }
   }
-  return tracks
+  return resultTracks
 }

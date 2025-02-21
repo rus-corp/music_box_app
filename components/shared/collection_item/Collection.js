@@ -29,7 +29,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
     // }
   }
   const handleStartPlay = async () => {
-    const tracks = await getStartTrackList()
+    const tracks = await getStartTrackList(collectionTitle)
     startPlay(tracks)
   }
   const handleDeleteFolder = async() => {

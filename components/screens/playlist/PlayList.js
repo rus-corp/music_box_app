@@ -18,7 +18,6 @@ export default function PlayList() {
   const [tracks, setTracks] = React.useState([])
 
   const handleStartPlay = (data) => {
-    console.log('tracks: ', data)
     setTracks(data)
   }
 

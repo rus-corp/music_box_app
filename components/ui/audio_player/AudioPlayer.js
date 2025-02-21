@@ -12,16 +12,21 @@ import { getRandomTrack } from '../../shared/helpers/utils';
 
 
 export default function AudioPlayer({ tracks, playPress }) {
-  console.log('tracks: ', tracks)
+  console.log('15 tracks: ', tracks)
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [currentTrack, setCurrentTrack] = React.useState()
-  const randomTracks = getRandomTrack(0, tracks?.length)
+  const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
+  const randomTracks = getRandomTrack(0, tracks.length)
 
-  const trackTitleSlice = (trackName) => trackName ? trackName.slice(0, -4) : ''
+  const trackTitleSlice = (trackName) => {
+    const trackSliceName = trackName.split('/')
+    return trackSliceName[trackSliceName.length - 1].slice(0, -4)
+  }
+  
   React.useEffect(() => {
     if (!currentTrack && tracks.length > 0) {
-      setCurrentTrack(tracks[randomTracks])
+      setCurrentTrack(tracks[0])
+      console.log('tracks[0]',tracks[0])
       Audio.setAudioModeAsync({
         staysActiveInBackground: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
@@ -43,13 +48,13 @@ export default function AudioPlayer({ tracks, playPress }) {
         const currentIndx = tracks.indexOf(currentTrack);
         const nextIndex = (currentIndx + 1) % tracks.length;
         const nextTrack = tracks[nextIndex];
-        const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
+        // const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
         await sound.unloadAsync();
         const {sound: newSound} = await Audio.Sound.createAsync(
-          { uri: nextFileUri },
+          { uri: nextTrack },
           { shouldPlay: true }
         )
-        await setSound(newSound)
+        setSound(newSound)
         setIsPlaying(true)
         setCurrentTrack(nextTrack)
       }
@@ -65,7 +70,7 @@ export default function AudioPlayer({ tracks, playPress }) {
     console.log('loadAndPlayAudio')
     const localUri = `${FileSystem.documentDirectory}${currentTrack}`;
     console.log('localUri: ', localUri)
-    const fileInfo = await FileSystem.getInfoAsync(localUri);
+    const fileInfo = await FileSystem.getInfoAsync(currentTrack);
     console.log('fileInfo: ', fileInfo.uri)
     if(!fileInfo.exists){
       return
@@ -74,7 +79,7 @@ export default function AudioPlayer({ tracks, playPress }) {
       { uri: fileInfo.uri },
       { shouldPlay: true }
     );
-    await setSound(sound);
+    setSound(sound);
     setIsPlaying(true);
   }
 
