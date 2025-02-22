@@ -7,13 +7,13 @@ export const styles = StyleSheet.create({
   },
   authContainer: {
     flex: 1,
-    padding: '3rem',
+    padding: '2rem',
     alignItems: 'center',
     justifyContent: 'center'
   },
   authContent: {
     width: '45%',
-    height: '90%',
+    height: '100%',
     backgroundColor: 'rgba(255, 255, 255, 0.24)',
     borderRadius: 30,
     // alignItems: 'center',
@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: '55%'
+  },
+  image: {
+
   },
   formData: {
     width: '100%',

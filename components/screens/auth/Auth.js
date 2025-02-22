@@ -7,6 +7,8 @@ import { View,
   Platform,
   Dimensions } from 'react-native';
 
+
+
 import querystring from 'querystring'
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -63,15 +65,15 @@ export default function Auth() {
   }
 
   React.useEffect(() => {
-    const checkToken = async() => {
-      const userData = await checkUser()
-      if (userData) {
-        navigation.navigate('PlayList')
-      } else {
-        navigation.navigate('Auth')
-      }
-    }
-    checkToken()
+    // const checkToken = async() => {
+    //   const userData = await checkUser()
+    //   if (userData) {
+    //     navigation.navigate('PlayList')
+    //   } else {
+    //     navigation.navigate('Auth')
+    //   }
+    // }
+    // checkToken()
   }, [user])
 
 
@@ -87,7 +89,7 @@ export default function Auth() {
             }}>
               <View style={styles.authContent}>
                 <View style={styles.imageContent}>
-                  <Image source={require('../../../assets/main/Group.png')}/>
+                  <Image style={styles.image} source={require('../../../assets/main/Group.png')}/>
                 </View>
                 <View style={styles.formData}>
                   <Text style={styles.inputLabel}>Email</Text>

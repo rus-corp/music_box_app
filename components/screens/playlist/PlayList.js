@@ -54,6 +54,8 @@ export default function PlayList() {
 
   const handleDeleteAccess = async () => {
     const token = await AsyncStorage.removeItem('access_token')
+    const deletedToken = await AsyncStorage.getItem('access_token')
+    console.log(deletedToken)
   }
 
   const deleteStorageCollections = async () => {

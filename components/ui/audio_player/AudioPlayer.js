@@ -19,8 +19,12 @@ export default function AudioPlayer({ tracks, playPress }) {
   const randomTracks = getRandomTrack(0, tracks.length)
 
   const trackTitleSlice = (trackName) => {
-    const trackSliceName = trackName.split('/')
-    return trackSliceName[trackSliceName.length - 1].slice(0, -4)
+    if (trackName) {
+      const trackSliceName = trackName.split('/')
+      return trackSliceName[trackSliceName.length - 1].slice(0, -4)
+    } else {
+      return ''
+    }
   }
   
   React.useEffect(() => {
