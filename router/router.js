@@ -20,7 +20,7 @@ export default function RootStack() {
       {user ? (
         <>
           <Stack.Screen name='PlayList' component={PlayList} />
-          <Stack.Screen name='CollectionDetail' component={CollectionScreen} />
+          <Stack.Screen name='CollectionDetails' component={CollectionScreen} />
         </>
       ) : (
         <>

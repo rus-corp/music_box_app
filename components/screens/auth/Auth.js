@@ -12,7 +12,6 @@ import { View,
 import querystring from 'querystring'
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { checkUser } from '../../shared/helpers/utils';
 
 import { styles } from './styles'
 import { AuthButton } from '../../ui/button/AuthButton';
@@ -63,18 +62,6 @@ export default function Auth() {
       setResponseData(response.data.detail)
     }
   }
-
-  React.useEffect(() => {
-    // const checkToken = async() => {
-    //   const userData = await checkUser()
-    //   if (userData) {
-    //     navigation.navigate('PlayList')
-    //   } else {
-    //     navigation.navigate('Auth')
-    //   }
-    // }
-    // checkToken()
-  }, [user])
 
 
   return(

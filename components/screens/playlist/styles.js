@@ -37,4 +37,24 @@ export const styles = StyleSheet.create({
     gap: 40,
     alignItems: 'stretch'
   },
+  progressContainer: {
+    padding: 10,
+    alignItems: "center",
+  },
+  progressText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  progressBar: {
+    width: "80%",
+    height: 10,
+    backgroundColor: "#ddd",
+    borderRadius: 5,
+    overflow: "hidden",
+    marginTop: 5,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#4CAF50",
+  },
 })

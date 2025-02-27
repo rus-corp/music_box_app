@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import CollectionHeader from '../../shared/collection_header/CollectionHeader';
 import CollectionTracksComponent from '../../shared/collection_tracks/CollectionTracksComponent';
-import { getCollectionFiles } from '../../shared/helpers/utils';
+import { getCollectionFiles } from '../../shared/helpers/folder_utils';
 
 
 

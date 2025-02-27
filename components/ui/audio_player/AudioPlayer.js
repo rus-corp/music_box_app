@@ -8,7 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { getRandomTrack } from '../../shared/helpers/utils';
+import { getRandomTrack } from '../../shared/helpers';
 
 
 export default function AudioPlayer({ tracks, playPress }) {

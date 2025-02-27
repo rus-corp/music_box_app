@@ -10,19 +10,36 @@ import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
-import { getSavedCollections, saveCollections, checkFolderDownloadTracks, clearApp } from './utils';
+
+import { checkFolderDownloadTracks, saveCollections,
+  getSavedCollections, clearApp } from '../../shared/helpers';
+
+
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
   const [collections, setCollections] = React.useState([])
   const [tracks, setTracks] = React.useState([])
+  const [progress, setProgress] = React.useState(0)
+  const [downloading, setDownloading] = React.useState(false)
+  const [downloadCollection, setDowmloadCollection] = React.useState(false)
 
   const handleStartPlay = (data) => {
     setTracks(data)
   }
 
+  const handleCheckDownloadCollection = () => {
+    setDowmloadCollection(true)
+  }
+
   const handlePress = async (collectionData) => {
-    await checkFolderDownloadTracks(collectionData)
+    setProgress(0)
+    setDownloading(true)
+    await checkFolderDownloadTracks(collectionData, (current, total) => {
+      setProgress((current / total) * 100)
+    })
+    setDownloading(false)
+    handleCheckDownloadCollection()
   }
 
   const clientCollections = async () => {
@@ -54,6 +71,7 @@ export default function PlayList() {
 
   const handleDeleteAccess = async () => {
     const token = await AsyncStorage.removeItem('access_token')
+    console.log(token)
     const deletedToken = await AsyncStorage.getItem('access_token')
     console.log(deletedToken)
   }
@@ -72,8 +90,8 @@ export default function PlayList() {
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title="Delete collections" onPress={deleteStorageCollections} />
-      <Button title='Delete Access' onPress={handleDeleteAccess} />
+      {/* <Button title="Delete collections" onPress={deleteStorageCollections} />
+      <Button title='Delete Access' onPress={handleDeleteAccess} /> */}
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>
@@ -81,6 +99,14 @@ export default function PlayList() {
             <Text style={styles.headerContentItem}>Избранные</Text>
           </View>
           <View style={styles.line}></View>
+          {downloading && (
+              <View style={styles.progressContainer}>
+                <Text style={styles.progressText}>Загрузка: {Math.round(progress)}%</Text>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                </View>
+              </View>
+            )}
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <View style={styles.collectionList}>
               {collections?.map((collectionItem) => (
@@ -90,9 +116,11 @@ export default function PlayList() {
                 trackCount={collectionItem.track_count}
                 collectionId={collectionItem.id}
                 startPlay={handleStartPlay}
+                collectionDownload={downloadCollection}
                 />
               ))}
             </View>
+            
           </ScrollView>
           <AudioPlayer tracks={tracks} />
         </View>

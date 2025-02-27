@@ -3,30 +3,19 @@ import { View, Text, Image, TouchableOpacity, Pressable, Alert } from 'react-nat
 import { styles } from './styles'
 import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, deleteFolder, saveFileToFolder, getCollectionFiles, getStartTrackList } from '../helpers/utils';
+import { checkFolder, deleteFolder, getStartTrackList } from '../helpers';
 
 
-export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay }) {
+
+export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay, collectionDownload }) {
   const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
   const [press, setPress] = React.useState(false)
-  const [folderExsist, setFolderExsist] = React.useState(false)
+  const [folderExsist, setFolderExsist] = React.useState(true)
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
   const handleCreateDir = async() => {
-    // const collectionTracks = await getCollectionBases(collectionId)
-    // if (collectionTracks.status === 200) {
-    //   const bases = collectionTracks.data.base_collection_association
-    //   console.log(collectionTracks.data)
-    //   console.log(bases)
-    //   // console.log(collectionTracks.data.tracks)
-    //   // const filesList = collectionTracks.data.tracks
-    //   // await saveFileToFolder(collectionTitle, filesList)
-    //   // setFolderExsist(true)
-    // }else {
-    //   console.log('server error')
-    // }
   }
   const handleStartPlay = async () => {
     const tracks = await getStartTrackList(collectionTitle)
@@ -43,7 +32,7 @@ export default function Collection({ collectionTitle, image, trackCount, collect
       setFolderExsist(exsist)
     }
     handleCheckFolder()
-  }, [collectionTitle])
+  }, [collectionTitle, collectionDownload])
 
   return(
     <TouchableOpacity style={{ width: '16%', height: 250 }} onPress={handlePress}>
@@ -76,9 +65,6 @@ export default function Collection({ collectionTitle, image, trackCount, collect
             <Text>Загрузить</Text>
           </Pressable>
         )}
-        <Pressable onPress={handleDeleteFolder}>
-          <Text>Delete Folder</Text>
-        </Pressable>
       </View>
     </TouchableOpacity>
   );
