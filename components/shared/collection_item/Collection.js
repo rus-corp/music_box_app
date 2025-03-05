@@ -3,24 +3,40 @@ import { View, Text, Image, TouchableOpacity, Pressable, Alert } from 'react-nat
 import { styles } from './styles'
 import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, deleteFolder, getStartTrackList } from '../helpers';
+import { checkFolder, deleteFolder, getStartTrackList, getBasesTracks } from '../helpers';
+import { trackListGenerator } from '../helpers/play_utils';
 
 
-
-export default function Collection({ collectionTitle, image, trackCount, collectionId, startPlay, collectionDownload }) {
+export default function Collection({
+  collectionTitle,
+  image,
+  trackCount,
+  collectionId,
+  startPlay,
+  collectionDownload,
+  onRegisterStartPlay
+}) {
   const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
   const [press, setPress] = React.useState(false)
   const [folderExsist, setFolderExsist] = React.useState(true)
+  const [basesData, setBasesData] = React.useState(null)
+  const trackGeneratorRef = React.useRef(null)
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
   const handleCreateDir = async() => {
   }
+
   const handleStartPlay = async () => {
-    const tracks = await getStartTrackList(collectionTitle)
-    startPlay(tracks)
+    if (!trackGeneratorRef.current) return
+    const { value, done } = trackGeneratorRef.current.next()
+    if (value) {
+      startPlay(value)
+    }
+    return value
   }
+
   const handleDeleteFolder = async() => {
     const folder = await deleteFolder(collectionTitle)
     setFolderExsist(folder)
@@ -31,7 +47,16 @@ export default function Collection({ collectionTitle, image, trackCount, collect
       const exsist = await checkFolder(collectionTitle)
       setFolderExsist(exsist)
     }
+    // const fetchBases = async () => {
+    //   const data = await getBasesTracks()
+    //   setBasesData(data)
+    //   trackGeneratorRef.current = trackListGenerator(data, 2)
+    // }
     handleCheckFolder()
+    // fetchBases()
+    if (onRegisterStartPlay) {
+      onRegisterStartPlay(handleStartPlay)
+    }
   }, [collectionTitle, collectionDownload])
 
   return(

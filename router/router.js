@@ -14,7 +14,6 @@ const Stack = createNativeStackNavigator()
 
 export default function RootStack() {
   const { user } = React.useContext(AppContext)
-  console.log('token', user)
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (

@@ -48,6 +48,7 @@ export const checkFolderDownloadTracks = async(clientCollectionData, onProgres) 
 
 const saveFileToFolder = async(folderUri, filesList) => {
   const dirInfo = await FileSystem.getInfoAsync(folderUri)
+  console.log('save file to folder', folderUri)
   let downloadTrackCount = 0
   let errorDownloadTrackCount = 0
   if (!dirInfo.exists) {
@@ -57,6 +58,7 @@ const saveFileToFolder = async(folderUri, filesList) => {
     console.log('file', file)
     const {title, id } = file
     const fileUri = `${folderUri}${title}.mp3`
+    console.log(fileUri)
     try {
       console.log('track download', title)
       const result = await FileSystem.downloadAsync(

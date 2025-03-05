@@ -11,7 +11,6 @@ const getUserToken = async () => {
 export default function AppProvider({ children }) {
   const [user, setUser] = React.useState(null)
   
-  console.log('user', user)
   React.useEffect(() => {
     const fetchToken = async() => {
       const token = await getUserToken()

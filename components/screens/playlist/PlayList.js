@@ -10,6 +10,8 @@ import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
+import { trackListGenerator } from '../../shared/helpers/play_utils';
+import { getBasesTracks } from '../../shared/helpers/play_utils';
 
 import { checkFolderDownloadTracks, saveCollections,
   getSavedCollections, clearApp } from '../../shared/helpers';
@@ -18,15 +20,28 @@ import { checkFolderDownloadTracks, saveCollections,
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
+  const trackGeneratorRef = React.useRef(null)
   const [collections, setCollections] = React.useState([])
   const [tracks, setTracks] = React.useState([])
   const [progress, setProgress] = React.useState(0)
   const [downloading, setDownloading] = React.useState(false)
   const [downloadCollection, setDowmloadCollection] = React.useState(false)
+  const [handleStartPlayData, setHandleStartPlayData] = React.useState(null)
 
-  const handleStartPlay = (data) => {
-    setTracks(data)
+  const handleStartPlay = async () => {
+    if (!trackGeneratorRef.current) return
+    const { value, done } = trackGeneratorRef.current.next()
+    console.log('generator')
+    if (value) {
+      console.log('value', value)
+      setTracks(value)
+    }
+    return value
   }
+
+  // const handleStartPlay = (data) => {
+  //   setTracks(data)
+  // }
 
   const handleCheckDownloadCollection = () => {
     setDowmloadCollection(true)
@@ -42,9 +57,10 @@ export default function PlayList() {
     handleCheckDownloadCollection()
   }
 
+
+
   const clientCollections = async () => {
     const clientSavedCollections = await getSavedCollections()
-    console.log('clientSavedCollections', clientSavedCollections)
     if (!clientSavedCollections.length > 0) {
       const response = await getClientCollections()
       if (response.status === 200) {
@@ -58,13 +74,6 @@ export default function PlayList() {
     } else {
       setCollections(clientSavedCollections)
     }
-    // console.log(response.data)
-    // console.log('bases', response.data[0].base_collection_association)
-    // if (response.status === 200) {
-    //   setCollections(response.data)
-    //   // const clietCollections = response.data.map(item => item.name)
-    //   // await AsyncStorage.setItem('clientCollections', JSON.stringify(clientCollections));
-    // }
   }
 
   const handleClearApp = async() => {}
@@ -83,15 +92,36 @@ export default function PlayList() {
     console.log('collections deleted')
   }
 
+  const fetchBases = async () => {
+    const data = await getBasesTracks()
+    trackGeneratorRef.current = trackListGenerator(data, 20)
+    const { value, done } = trackGeneratorRef.current.next()
+    if (value) {
+      setTracks(value)
+    }
+  }
+
+  const getNextTrackList = () => {
+    const { value, done } = trackGeneratorRef.current.next()
+    console.log('generator next track list')
+    if (value) {
+      setTracks(value)
+    }
+    return value
+  }
+
   React.useEffect(() => {
     clientCollections()
+    if (collections) {
+      fetchBases()
+    }
   }, [user])
   
   return(
     <View style={styles.mainContainer}>
       <Header />
-      {/* <Button title="Delete collections" onPress={deleteStorageCollections} />
-      <Button title='Delete Access' onPress={handleDeleteAccess} /> */}
+      <Button title="Delete collections" onPress={deleteStorageCollections} />
+      <Button title='Start Play' onPress={fetchBases} />
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>
@@ -117,12 +147,17 @@ export default function PlayList() {
                 collectionId={collectionItem.id}
                 startPlay={handleStartPlay}
                 collectionDownload={downloadCollection}
+                onRegisterStartPlay={setHandleStartPlayData}
                 />
               ))}
             </View>
             
           </ScrollView>
-          <AudioPlayer tracks={tracks} />
+          <AudioPlayer
+          tracks={tracks}
+          fetchBases={getNextTrackList}
+          onRequestMoreTracks={handleStartPlayData}
+          />
         </View>
       </LinearGradient>
     </View>

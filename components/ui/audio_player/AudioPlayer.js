@@ -11,26 +11,31 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { getRandomTrack } from '../../shared/helpers';
 
 
-export default function AudioPlayer({ tracks, playPress }) {
-  console.log('15 tracks: ', tracks)
+export default function AudioPlayer({ tracks, onRequestMoreTracks, fetchBases }) {
+  console.log('tracks', tracks)
+  console.log('15 tracks len: ', tracks.length)
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
-  const randomTracks = getRandomTrack(0, tracks.length)
+  const [currentTrackIndex, setCurrentTrackIndex] = React.useState(0)
 
   const trackTitleSlice = (trackName) => {
     if (trackName) {
       const trackSliceName = trackName.split('/')
-      return trackSliceName[trackSliceName.length - 1].slice(0, -4)
+      return trackSliceName[trackSliceName.length - 1].slice(0, -4).replaceAll('_', ' ')
     } else {
       return ''
     }
   }
   
   React.useEffect(() => {
-    if (!currentTrack && tracks.length > 0) {
+    // if (tracks.length > 0 && trackList.length === 0) {
+    //   setTrackList([...tracks])
+    // }
+    if (!currentTrack) {
       setCurrentTrack(tracks[0])
-      console.log('tracks[0]',tracks[0])
+      console.log('1ef tracks len', tracks.length)
+      // console.log('tracks[0]',tracks[0])
       Audio.setAudioModeAsync({
         staysActiveInBackground: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
@@ -49,18 +54,46 @@ export default function AudioPlayer({ tracks, playPress }) {
     if (!sound) return;
     const statusUpdate = async (status) => {
       if (status.didJustFinish) {
-        const currentIndx = tracks.indexOf(currentTrack);
-        const nextIndex = (currentIndx + 1) % tracks.length;
-        const nextTrack = tracks[nextIndex];
-        // const nextFileUri = `${FileSystem.documentDirectory}music_box/Boorn/${nextTrack}`;
-        await sound.unloadAsync();
-        const {sound: newSound} = await Audio.Sound.createAsync(
-          { uri: nextTrack },
-          { shouldPlay: true }
-        )
-        setSound(newSound)
-        setIsPlaying(true)
-        setCurrentTrack(nextTrack)
+        const nextIndex = currentTrackIndex + 1
+        console.log('nextIndex', nextIndex)
+        // const updatedTrackList = trackList.filter(track => track !== currentTrack)
+        // console.log('2 effect tracks', tracks.length)
+        // console.log('2ef traksList len', trackList.length)
+        // console.log('updatedTrackList', updatedTrackList.length)
+        if (nextIndex > (tracks.length - 1)) {
+          if (onRequestMoreTracks) {
+            console.log('request new trackList')
+            const newTracks = fetchBases()
+            console.log('newTracks', newTracks)
+            setCurrentTrackIndex(0)
+            const nextTrack = newTracks[0]
+            setCurrentTrack(nextTrack)
+            console.log('track after new request', nextTrack)
+            await sound.unloadAsync();
+            const {sound: newSound} = await Audio.Sound.createAsync(
+              { uri: nextTrack },
+              { shouldPlay: true }
+            )
+            setSound(newSound)
+            setIsPlaying(true)
+            // setTrackList(newTracks)
+          }
+        } else {
+          setCurrentTrackIndex(nextIndex)
+          // const newTrackLIst = trackList.slice(1)
+          // setTrackList(updatedTrackList)
+          const nextTrack = tracks[nextIndex]
+          console.log('nextTrack', nextTrack)
+          // setTrackList(newTrackLIst)
+          setCurrentTrack(nextTrack)
+          await sound.unloadAsync();
+          const {sound: newSound} = await Audio.Sound.createAsync(
+            { uri: nextTrack },
+            { shouldPlay: true }
+          )
+          setSound(newSound)
+          setIsPlaying(true)
+        }
       }
     }
     sound.setOnPlaybackStatusUpdate(statusUpdate)
@@ -71,16 +104,15 @@ export default function AudioPlayer({ tracks, playPress }) {
 
   async function loadAndPlayAudio() {
     if (!currentTrack) return;
-    console.log('loadAndPlayAudio')
-    const localUri = `${FileSystem.documentDirectory}${currentTrack}`;
-    console.log('localUri: ', localUri)
-    const fileInfo = await FileSystem.getInfoAsync(currentTrack);
-    console.log('fileInfo: ', fileInfo.uri)
-    if(!fileInfo.exists){
-      return
-    }
+    // const localUri = `${FileSystem.documentDirectory}${currentTrack}`;
+    // console.log('localUri: ', localUri)
+    // const fileInfo = await FileSystem.getInfoAsync(currentTrack);
+    // console.log('fileInfo: ', fileInfo.uri)
+    // if(!fileInfo.exists){
+    //   return
+    // }
     const { sound } = await Audio.Sound.createAsync(
-      { uri: fileInfo.uri },
+      { uri: currentTrack },
       { shouldPlay: true }
     );
     setSound(sound);
