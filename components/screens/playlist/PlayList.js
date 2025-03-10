@@ -9,12 +9,11 @@ import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getClientCollections } from '../../../api';
-import { trackListGenerator } from '../../shared/helpers/play_utils';
-import { getBasesTracks } from '../../shared/helpers/play_utils';
 
+
+import { getClientCollections, getClientSheduler } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
-  getSavedCollections, clearApp } from '../../shared/helpers';
+  getSavedCollections, clearApp, getBasesTracks, trackListGenerator } from '../../shared/helpers';
 
 
 
@@ -39,12 +38,13 @@ export default function PlayList() {
     return value
   }
 
-  // const handleStartPlay = (data) => {
-  //   setTracks(data)
-  // }
-
   const handleCheckDownloadCollection = () => {
     setDowmloadCollection(true)
+  }
+
+  const handleClientSheduler = async () => {
+    const response = await getClientSheduler()
+    console.log(response.data)
   }
 
   const handlePress = async (collectionData) => {
@@ -87,8 +87,6 @@ export default function PlayList() {
 
   const deleteStorageCollections = async () => {
     await clearApp()
-    // await AsyncStorage.removeItem('clientCollections')
-    // const clientSavedCollections = await getSavedCollections()
     console.log('collections deleted')
   }
 
@@ -103,7 +101,6 @@ export default function PlayList() {
 
   const getNextTrackList = () => {
     const { value, done } = trackGeneratorRef.current.next()
-    console.log('generator next track list')
     if (value) {
       setTracks(value)
     }
@@ -120,7 +117,7 @@ export default function PlayList() {
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title="Delete collections" onPress={deleteStorageCollections} />
+      <Button title="client sheduler" onPress={handleClientSheduler}/>
       <Button title='Start Play' onPress={fetchBases} />
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
