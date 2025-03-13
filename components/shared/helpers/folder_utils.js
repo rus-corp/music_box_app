@@ -5,13 +5,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const deleteFolder = async(folderTitle) => {
   console.log('delete folderTitle', folderTitle)
   const baseDir = FileSystem.documentDirectory;
-  const findDir = `${baseDir}${folderTitle}/`
+  const findDir = `${baseDir}bases/${folderTitle}/`
   const dirInfo = await FileSystem.getInfoAsync(findDir)
+  console.log('dirInfo', dirInfo)
   if (dirInfo.exists) {
     await FileSystem.deleteAsync(findDir, { idempotent: true })
     return false
   }
-  console.log('deleted folder: ', await FileSystem.readDirectoryAsync(`${baseDir}music_box/`))
+  console.log('deleted folder: ', await FileSystem.readDirectoryAsync(`${baseDir}`))
   return true
 }
 
@@ -40,3 +41,25 @@ export const checkFolder = async (collectionName) => {
     return false
   }
 }
+
+
+
+export const checkCollectionFolders = async () =>{
+  const folderInfoResponse = []
+  const clientCollections = await AsyncStorage.getItem('clientCollections')
+  const clientCollectionParse = JSON.parse(clientCollections)
+  for (const collection of clientCollectionParse) {
+    for (const base of collection.base_collection_association) {
+      const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
+      const baseDir = `${FileSystem.documentDirectory}bases/${baseName}/`
+      const folderInfo = await FileSystem.getInfoAsync(baseDir)
+      folderInfoResponse.push({
+        'baseName': baseName,
+        'folderInfo': folderInfo.exists
+      })
+    }
+  }
+  return folderInfoResponse
+}
+
+

@@ -67,7 +67,7 @@ export default function Collection({
           <Text style={styles.title}>{collectionTitle}</Text>
           <Text style={styles.desc}>{trackCount} треков</Text>
         </View>
-        {folderExsist ? (
+        {/* {folderExsist ? (
           <Pressable
           onPressIn={() => setPress(true)}
           onPressOut={() => setPress(false)}
@@ -89,7 +89,7 @@ export default function Collection({
           onPress={handleCreateDir}>
             <Text>Загрузить</Text>
           </Pressable>
-        )}
+        )} */}
       </View>
     </TouchableOpacity>
   );

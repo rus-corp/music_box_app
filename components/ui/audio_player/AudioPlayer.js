@@ -51,7 +51,8 @@ export default function AudioPlayer({ tracks, onRequestMoreTracks, fetchBases })
         const nextIndex = currentTrackIndex + 1
         if (nextIndex > (tracks.length - 1)) {
           if (onRequestMoreTracks) {
-            const newTracks = fetchBases()
+            const newTracks = await fetchBases()
+            console.log('newTracks', newTracks)
             setCurrentTrackIndex(0)
             const nextTrack = newTracks[0]
             setCurrentTrack(nextTrack)

@@ -39,7 +39,7 @@ export const getCollectionBases = async (collectionId) => {
 export const getBaseTracks = async (baseId, offset) => {
   const reqData = {
     "collection_id": baseId,
-    "limit": 50,
+    "limit": 10,
     "offset": offset
   }
   try {

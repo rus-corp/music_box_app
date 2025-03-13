@@ -3,15 +3,13 @@ import * as FileSystem from 'expo-file-system'
 
 
 
-export const getStartTrackList = async() => {
+export const getStartTrackList = async(collectionName) => {
   const clientCollectionsJson = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollectionsJson)
   let baseTracksPath = {}
   let baseTrackCount = {}
   for (collection of clientCollectionParse) {
-    console.log('12 collection', collection)
     for (base of collection.base_collection_association) {
-      console.log('14 base', base)
       const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
       baseTracksPath['base_name'] = baseName
       baseTracksPath['trackCount'] = base.track_quantity
@@ -30,27 +28,46 @@ export const getStartTrackList = async() => {
 }
 
 
-export const getBasesTracks = async() => {
+export const getBasesTracks = async(collectionName) => {
   let bases = []
   const clientCollectionsJson = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollectionsJson)
-  for (collection of clientCollectionParse) {
-    for (const base of collection.base_collection_association) {
-      const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
-      const baseDir = `${FileSystem.documentDirectory}${baseName}`
-      try {
-        const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-        const trackPath = baseTracks.map((track) => `${baseDir}/${track}`)
-        bases.push({
-          name: baseName,
-          trackQuantity: base.track_quantity,
-          tracks: trackPath
-        })
-      } catch (error) {
-        console.log(error)
+  for (const collectionItem of clientCollectionParse) {
+    if (collectionItem.name === collectionName) {
+      for (const base of collectionItem.base_collection_association) {
+        const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
+        const baseDir = `${FileSystem.documentDirectory}bases/${baseName}`
+        try {
+          const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
+          const trackPatch = baseTracks.map((track) => `${baseDir}/${track}`)
+          bases.push({
+            name: baseName,
+            trackQuantity: base.track_quantity,
+            tracks: trackPatch
+          })
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
   }
+  // for (collection of clientCollectionParse) {
+  //   for (const base of collection.base_collection_association) {
+  //     const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
+  //     const baseDir = `${FileSystem.documentDirectory}${baseName}`
+  //     try {
+  //       const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
+  //       const trackPath = baseTracks.map((track) => `${baseDir}/${track}`)
+  //       bases.push({
+  //         name: baseName,
+  //         trackQuantity: base.track_quantity,
+  //         tracks: trackPath
+  //       })
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+  //   }
+  // }
   return bases
 }
 
@@ -95,32 +112,44 @@ const getRandomFiles = (filesList, count) => {
 
 
 export function* trackListGenerator(bases, batchSize=20) {
+  let baseIndex = 0
+  let trackIndexes = bases.map(() => 0)
   while (true) {
-    let allTracks = []
-    while (allTracks.length < batchSize) {
-      for (const base of bases) {
-        if (allTracks.length >= batchSize) break
+    const base = bases[baseIndex]
+    const trackCount = base.trackQuantity
+    const startIndex = trackIndexes[baseIndex]
 
-        if (base.tracks.length === 0) continue
+    const selectedTracks = []
 
-        const selectedTracks = base.tracks.splice(0, base.trackQuantity)
-        allTracks.push(...selectedTracks)
-      }
-      if (allTracks.length === 0) return
+    for (let i=0; i < trackCount; i++) {
+      const trackIndex = (startIndex + i) % base.tracks.length
+      selectedTracks.push(base.tracks[trackIndex])
+      trackIndexes[baseIndex] = (trackIndexes[baseIndex] + 1) % base.tracks.length
     }
-    yield allTracks.flat()
+    baseIndex = (baseIndex + 1) % bases.length
+    yield selectedTracks
   }
+  // console.log(bases)
+  // let lastIndex = 0
+  // while (true) {
+  //   let allTracks = []
+  //   for (const base of bases) {
+  //     const trackCount = base.trackQuantity
+  //     console.log('trackCount', trackCount)
+  //     const selectedTracks = base.tracks.slice(lastIndex, lastIndex + trackCount)
+  //     lastIndex = (lastIndex + trackCount) % base.tracks.length
+  //     allTracks.push(...selectedTracks)
+  //   }
+    // while (allTracks.length < batchSize) {
+    //   for (const base of bases) {
+    //     console.log('generator base', base)
+    //     if (allTracks.length >= batchSize) break
+
+    //     if (base.tracks.length === 0) continue
+
+    //     const selectedTracks = base.tracks.splice(0, base.trackQuantity)
+    //     allTracks.push(...selectedTracks)
+    //   }
+    //   if (allTracks.length === 0) return
+    // }
 }
-  // let currentIndx = 0
-  // let currentCount = 0
-  // let sizeCount = 3
-  // if (batchSize <= 2) {
-  //   sizeCount = 10
-  // } else if (batchSize >= 3 && batchSize <= 5) {
-  //   sizeCount = 5
-  // }
-  // while (currentIndx < trackList.length && currentCount < sizeCount) {
-  //   yield trackList.slice(currentIndx, currentIndx + batchSize)
-  //   currentIndx += batchSize
-  //   currentCount += 1
-  // }

@@ -11,15 +11,18 @@ import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-import { getClientCollections, getClientSheduler } from '../../../api';
+import { getClientCollections } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
-  getSavedCollections, clearApp, getBasesTracks, trackListGenerator } from '../../shared/helpers';
+  getSavedCollections, clearApp, getBasesTracks, trackListGenerator,
+  getCurrentSheduler, saveClientSheduler, checkCollectionFolders, handleCheckClientSheduler }
+  from '../../shared/helpers';
 
 
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
   const trackGeneratorRef = React.useRef(null)
+  const currentCollectionRef = React.useRef(null)
   const [collections, setCollections] = React.useState([])
   const [tracks, setTracks] = React.useState([])
   const [progress, setProgress] = React.useState(0)
@@ -28,23 +31,35 @@ export default function PlayList() {
   const [handleStartPlayData, setHandleStartPlayData] = React.useState(null)
 
   const handleStartPlay = async () => {
-    if (!trackGeneratorRef.current) return
+    const sheduleData = await handleCheckClientSheduler()
+    const currentShedule = getCurrentSheduler(sheduleData)
+    if (!currentShedule) {
+      Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
+        { text: 'OK' }
+      ])
+    }
+    currentCollectionRef.current = currentShedule
+    const data = await getBasesTracks(currentShedule)
+    console.log('data', data)
+    trackGeneratorRef.current = trackListGenerator(data, 20)
     const { value, done } = trackGeneratorRef.current.next()
-    console.log('generator')
+    console.log('value', value)
     if (value) {
-      console.log('value', value)
       setTracks(value)
     }
-    return value
+
+    // if (!trackGeneratorRef.current) return
+    // const { value, done } = trackGeneratorRef.current.next()
+    // console.log('generator')
+    // if (value) {
+    //   console.log('value', value)
+    //   setTracks(value)
+    // }
+    // return value
   }
 
   const handleCheckDownloadCollection = () => {
     setDowmloadCollection(true)
-  }
-
-  const handleClientSheduler = async () => {
-    const response = await getClientSheduler()
-    console.log(response.data)
   }
 
   const handlePress = async (collectionData) => {
@@ -60,23 +75,36 @@ export default function PlayList() {
 
 
   const clientCollections = async () => {
-    const clientSavedCollections = await getSavedCollections()
-    if (!clientSavedCollections.length > 0) {
+    const clientCollections = await getSavedCollections()
+    if (clientCollections.length === 0) {
       const response = await getClientCollections()
       if (response.status === 200) {
-        await saveCollections(response.data)
+        const handleSaveCollection = await saveCollections(response.data)
+        console.log('handleSaveCollection', handleSaveCollection)
         setCollections(response.data)
-        Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
-          { text: 'Загрузить', onPress: () => handlePress(response.data) },
-          { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
-        ])
+        return handleSaveCollection
       }
     } else {
-      setCollections(clientSavedCollections)
+      setCollections(clientCollections)
+      return clientCollections
     }
+
+    // const clientSavedCollections = await getSavedCollections()
+    // if (!clientSavedCollections.length > 0) {
+    //   const response = await getClientCollections()
+    //   if (response.status === 200) {
+    //     await saveCollections(response.data)
+    //     setCollections(response.data)
+    //     Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
+    //       { text: 'Загрузить', onPress: () => handlePress(response.data) },
+    //       { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
+    //     ])
+    //   }
+    // } else {
+    //   setCollections(clientSavedCollections)
+    // }
   }
 
-  const handleClearApp = async() => {}
 
   const handleDeleteAccess = async () => {
     const token = await AsyncStorage.removeItem('access_token')
@@ -90,16 +118,47 @@ export default function PlayList() {
     console.log('collections deleted')
   }
 
-  const fetchBases = async () => {
-    const data = await getBasesTracks()
-    trackGeneratorRef.current = trackListGenerator(data, 20)
-    const { value, done } = trackGeneratorRef.current.next()
-    if (value) {
-      setTracks(value)
+  const fetchBases = async (collectionData) => {
+    const collectionFolders = await checkCollectionFolders()
+    if (collectionFolders.some(item => item.folderInfo === false)) {
+      Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
+        { text: 'Загрузить', onPress: () => handlePress(collectionData) },
+        { text: 'Отмена', onPress: () => console.log('Canceled') }
+      ])
     }
+    // const sheduler = await getSavedSheduler()
+    // console.log('sheduler', sheduler)
+    // const currentCollectionName = getCurrentSheduler(sheduler)
+    // if (!currentCollectionName) {
+    //   Alert.alert('Нет текущего расписания', 'Необходимо создать расписание в личном кабинете', [
+    //     { text: 'OK' }
+    //   ])
+    // }
+    // console.log('currentCollectionName', currentCollectionName)
+    // const data = await getBasesTracks(currentCollectionName)
+    // console.log(data)
+    // trackGeneratorRef.current = trackListGenerator(data, 20)
+    // const { value, done } = trackGeneratorRef.current.next()
+    // if (value) {
+    //   setTracks(value)
+    // }
   }
 
-  const getNextTrackList = () => {
+  const getNextTrackList = async () => {
+    console.log('next gen')
+    const sheduleData = await handleCheckClientSheduler()
+    const currentShedule = getCurrentSheduler(sheduleData)
+    if (!currentShedule) {
+      Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
+        { text: 'OK' }
+      ])
+    }
+    if (currentShedule !== currentCollectionRef.current) {
+      currentCollectionRef = currentShedule
+      const data = await getBasesTracks(currentShedule)
+      console.log('next collection', data)
+      trackGeneratorRef.current = trackListGenerator(data, 20)
+    }
     const { value, done } = trackGeneratorRef.current.next()
     if (value) {
       setTracks(value)
@@ -108,17 +167,20 @@ export default function PlayList() {
   }
 
   React.useEffect(() => {
-    clientCollections()
-    if (collections) {
-      fetchBases()
+    const collections = async () => {
+      const collectionsData = await clientCollections()
+      if (collectionsData) {
+        await fetchBases(collectionsData)
+      }
     }
+    collections()
   }, [user])
   
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title="client sheduler" onPress={handleClientSheduler}/>
-      <Button title='Start Play' onPress={fetchBases} />
+      
+      <Button title='Начать воспроизведение' onPress={handleStartPlay} />
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>
@@ -142,7 +204,7 @@ export default function PlayList() {
                 image={collectionItem.image}
                 trackCount={collectionItem.track_count}
                 collectionId={collectionItem.id}
-                startPlay={handleStartPlay}
+                // startPlay={handleStartPlay}
                 collectionDownload={downloadCollection}
                 onRegisterStartPlay={setHandleStartPlayData}
                 />
