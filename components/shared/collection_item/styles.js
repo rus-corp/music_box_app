@@ -5,8 +5,8 @@ export const styles = StyleSheet.create({
   collectionItem: {
     borderRadius: 20,
     width: '100%',
-    height: '100%',
-    minHeight: 280,
+    height: '90%',
+    minHeight: 190,
     backgroundColor: 'rgba(220, 143, 164, 0.24)',
     alignItems: 'center'
     // borderWidth: 2,

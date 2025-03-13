@@ -28,7 +28,6 @@ export const styles = StyleSheet.create({
   },
   formData: {
     width: '100%',
-    // justifyContent: 'center'
   },
   inputLabel: {
     color: '#fff',
@@ -42,7 +41,10 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '80%',
     borderRadius: 20,
-    marginBottom: '3%'
+    marginBottom: '3%',
+    paddingLeft: 30,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   btnWrapper: {
     marginTop: '5%',

@@ -7,20 +7,15 @@ import { createFolder } from "./base_utils"
 
 export const checkFolderDownloadTracks = async(clientCollectionData, onProgres) => {
   let totalCollectionTracks = clientCollectionData.reduce((acc, collection) => acc + collection.track_count, 0)
-  console.log('totalCollectionTracks', totalCollectionTracks)
   let downloadedTracks = 0
   for (const collection of clientCollectionData) {
-    console.log('collection', collection)
     const collectionTrackCount = collection.track_count
-    console.log('collectionTrackCount', collectionTrackCount)
     for (const base of collection.base_collection_association) {
-      console.log('base', base)
       const baseName = base.base_collection.name
       const baseId = base.base_collection.id
       const folderUri = await createFolder(baseName)
       let trackCount = 0
       let offset = 0
-      console.log('folderUri', folderUri)
       while (trackCount < collectionTrackCount) {
         const baseTracks = await getBaseTracks(baseId, offset)
         console.log('baseTracks', baseTracks)
@@ -36,7 +31,7 @@ export const checkFolderDownloadTracks = async(clientCollectionData, onProgres) 
           if (onProgres) {
             onProgres(downloadedTracks, totalCollectionTracks)
           }
-          offset += 50
+          offset += tracks.length
         }
       }
     }
