@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, Pressable, Alert } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { styles } from './styles'
 import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
@@ -47,13 +47,7 @@ export default function Collection({
       const exsist = await checkFolder(collectionTitle)
       setFolderExsist(exsist)
     }
-    // const fetchBases = async () => {
-    //   const data = await getBasesTracks()
-    //   setBasesData(data)
-    //   trackGeneratorRef.current = trackListGenerator(data, 2)
-    // }
     handleCheckFolder()
-    // fetchBases()
     if (onRegisterStartPlay) {
       onRegisterStartPlay(handleStartPlay)
     }
@@ -67,29 +61,6 @@ export default function Collection({
           <Text style={styles.title}>{collectionTitle}</Text>
           <Text style={styles.desc}>{trackCount} треков</Text>
         </View>
-        {/* {folderExsist ? (
-          <Pressable
-          onPressIn={() => setPress(true)}
-          onPressOut={() => setPress(false)}
-          style={({ pressed }) => [
-            styles.collectionBtn,
-            pressed || press ? styles.btnPressed : null 
-          ]}
-          onPress={handleStartPlay}>
-            <Text>Играть</Text>
-          </Pressable>
-        ): (
-          <Pressable
-          onPressIn={() => setPress(true)}
-          onPressOut={() => setPress(false)}
-          style={({ pressed }) => [
-            styles.collectionBtn,
-            pressed || press ? styles.btnPressed : null 
-          ]}
-          onPress={handleCreateDir}>
-            <Text>Загрузить</Text>
-          </Pressable>
-        )} */}
       </View>
     </TouchableOpacity>
   );

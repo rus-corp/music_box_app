@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, Platform } from 'react-native';
+import { View, Text, Button, Platform, FlatList } from 'react-native';
 import { styles } from './styles'
 import Header from '../../ui/header/Header';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -34,11 +34,11 @@ export default function CollectionScreen({ route }) {
         tracksCount={collectionTracksData.length}
         />
         <View style={styles.tracksList}>
-          {collectionTracksData.map((collectionTrack, indx) => (
-            <TrackItem key={indx}
-            trackTitle={collectionTrack}
-            />
-          ))}
+          <FlatList
+          data={collectionTracksData}
+          renderItem={({item, indx}) => <TrackItem key={indx} trackTitle={item} />}
+          keyExtractor={item => item.id}
+          />
         </View>
       </LinearGradient>
     </View>

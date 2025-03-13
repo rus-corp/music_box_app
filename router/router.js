@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Auth from '../components/screens/auth/Auth';
 import PlayList from '../components/screens/playlist/PlayList';
 import CollectionScreen from '../components/screens/collection/CollectionScreen';
+import SettingsScreen from '../components/screens/settings/SettingsScreen';
 import { AppContext } from '../hooks/AppContext';
 
 
@@ -20,6 +21,7 @@ export default function RootStack() {
         <>
           <Stack.Screen name='PlayList' component={PlayList} />
           <Stack.Screen name='CollectionDetails' component={CollectionScreen} />
+          <Stack.Screen name='Settings' component={SettingsScreen}/>
         </>
       ) : (
         <>
