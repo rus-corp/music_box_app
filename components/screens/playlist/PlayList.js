@@ -14,10 +14,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getClientCollections } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
   getSavedCollections, clearApp, getBasesTracks, trackListGenerator,
-  getCurrentSheduler, saveClientSheduler, checkCollectionFolders, handleCheckClientSheduler }
+  getCurrentSheduler, checkCollectionFolders, handleCheckClientSheduler,
+  updateSheduler }
   from '../../shared/helpers';
-
-
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
@@ -32,13 +31,16 @@ export default function PlayList() {
 
   const handleStartPlay = async () => {
     const sheduleData = await handleCheckClientSheduler()
+    console.log('sheduleData', sheduleData)
     const currentShedule = getCurrentSheduler(sheduleData)
+    console.log(currentShedule)
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     currentCollectionRef.current = currentShedule
+    console.log('currentCollectionRef.current', currentCollectionRef.current)
     const data = await getBasesTracks(currentShedule)
     console.log('data', data)
     trackGeneratorRef.current = trackListGenerator(data, 20)
@@ -47,15 +49,6 @@ export default function PlayList() {
     if (value) {
       setTracks(value)
     }
-
-    // if (!trackGeneratorRef.current) return
-    // const { value, done } = trackGeneratorRef.current.next()
-    // console.log('generator')
-    // if (value) {
-    //   console.log('value', value)
-    //   setTracks(value)
-    // }
-    // return value
   }
 
   const handleCheckDownloadCollection = () => {
@@ -76,6 +69,7 @@ export default function PlayList() {
 
   const clientCollections = async () => {
     const clientCollections = await getSavedCollections()
+    console.log('clientCollections', clientCollections)
     if (clientCollections.length === 0) {
       const response = await getClientCollections()
       if (response.status === 200) {
@@ -88,21 +82,6 @@ export default function PlayList() {
       setCollections(clientCollections)
       return clientCollections
     }
-
-    // const clientSavedCollections = await getSavedCollections()
-    // if (!clientSavedCollections.length > 0) {
-    //   const response = await getClientCollections()
-    //   if (response.status === 200) {
-    //     await saveCollections(response.data)
-    //     setCollections(response.data)
-    //     Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
-    //       { text: 'Загрузить', onPress: () => handlePress(response.data) },
-    //       { text: 'Отмена', onPress: () => console.log('Cancel Pressed'), style: 'cancel' }
-    //     ])
-    //   }
-    // } else {
-    //   setCollections(clientSavedCollections)
-    // }
   }
 
 
@@ -126,35 +105,23 @@ export default function PlayList() {
         { text: 'Отмена', onPress: () => console.log('Canceled') }
       ])
     }
-    // const sheduler = await getSavedSheduler()
-    // console.log('sheduler', sheduler)
-    // const currentCollectionName = getCurrentSheduler(sheduler)
-    // if (!currentCollectionName) {
-    //   Alert.alert('Нет текущего расписания', 'Необходимо создать расписание в личном кабинете', [
-    //     { text: 'OK' }
-    //   ])
-    // }
-    // console.log('currentCollectionName', currentCollectionName)
-    // const data = await getBasesTracks(currentCollectionName)
-    // console.log(data)
-    // trackGeneratorRef.current = trackListGenerator(data, 20)
-    // const { value, done } = trackGeneratorRef.current.next()
-    // if (value) {
-    //   setTracks(value)
-    // }
   }
 
   const getNextTrackList = async () => {
     console.log('next gen')
     const sheduleData = await handleCheckClientSheduler()
     const currentShedule = getCurrentSheduler(sheduleData)
+    console.log('next gen currentShedule', currentShedule)
+    console.log('currentCollectionRef.current', currentCollectionRef.current)
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     if (currentShedule !== currentCollectionRef.current) {
-      currentCollectionRef = currentShedule
+      console.log('new collection shedul')
+      currentCollectionRef.current = currentShedule
+      console.log(' new currentCollectionRef', currentCollectionRef)
       const data = await getBasesTracks(currentShedule)
       console.log('next collection', data)
       trackGeneratorRef.current = trackListGenerator(data, 20)
@@ -165,6 +132,12 @@ export default function PlayList() {
     }
     return value
   }
+
+  const handleUpdateSheduler = async () => {
+    const updatedShedule = await updateSheduler()
+  }
+
+  const handleUpdateBases = async () => {}
 
   React.useEffect(() => {
     const collections = async () => {
@@ -180,6 +153,10 @@ export default function PlayList() {
     <View style={styles.mainContainer}>
       <Header />
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
+      <View>
+        <Button title='Обновить расписание' onPress={handleUpdateSheduler} />
+        <Button title='Обновить базы' onPress={handleUpdateBases} />
+      </View>
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
           <View style={styles.mainContentHeader}>

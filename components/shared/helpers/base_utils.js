@@ -17,3 +17,6 @@ export const createFolder = async(baseName) => {
     return folderInfo.uri
   }
 }
+
+
+export const updateBasesTracks = async () => {}

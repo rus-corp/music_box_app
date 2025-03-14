@@ -77,24 +77,32 @@ export const deleteSheduler = async () => {
 
 
 export const handleCheckClientSheduler = async () => {
-  const handleDeleteSheduler = await deleteSheduler()
+  // const handleDeleteSheduler = await deleteSheduler()
+  // console.log('handleDeleteSheduler', handleDeleteSheduler)
   const sheduler = await getSavedSheduler()
   if (sheduler.length === 0) {
     const response = await getClientSheduler()
     if (response.status === 200) {
       const newSheduler = await saveClientSheduler(response.data)
       return newSheduler
-      // const shedulerExsist = checkServerSheduler(response.data)
-      // console.log('shedulerExsist', shedulerExsist)
-      // if (!shedulerExsist) {
-      //   console.log('')
-      //   return false
-      // } else {
-      //   // await saveClientSheduler(response.data)
-      //   console.log('sheduler Saved')
-      //   return true
-      // }
     }
   }
   return sheduler
+}
+
+
+
+export const updateSheduler = async() => {
+  const oldSheuler = await getSavedSheduler()
+  if (oldSheuler) {
+    AsyncStorage.removeItem('clientSheduler')
+  }
+  const newShedulerResponse = await getClientSheduler()
+  if (newShedulerResponse.status === 200) {
+    await saveClientSheduler(newShedulerResponse.data)
+    return newShedulerResponse.data
+    // return true
+  } else {
+    return false
+  }
 }
