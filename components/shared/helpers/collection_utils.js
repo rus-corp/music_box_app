@@ -48,7 +48,7 @@ export const getCollectionFiles = async (collectionTitle) => {
       for (const base of collection.base_collection_association) {
         const baseName = base.base_collection.name
         const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
-        const baseDir = `${FileSystem.documentDirectory}${correctName}/`
+        const baseDir = `${FileSystem.documentDirectory}bases/${correctName}/`
         const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
         console.log('baseTracks', baseTracks)
         tracks = [...tracks, ...baseTracks]
