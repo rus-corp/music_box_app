@@ -11,3 +11,21 @@ export const downloadAudio = async (trackId) => {
     console.error(error)
   }
 }
+
+
+export const getBaseTracksByName = async (baseName, limit, offset) => {
+  let responseData = {
+    'base_name': baseName,
+    'limit': limit,
+    'offset': offset
+  }
+  try {
+    const response = await backend.post(
+      '/app_routers/get_base_files_by_base_name/',
+      responseData
+    )
+    return response
+  } catch (error) {
+    console.error(error)
+  }
+}

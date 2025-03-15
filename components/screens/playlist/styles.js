@@ -5,6 +5,10 @@ export const styles = StyleSheet.create({
   mainContainer: {
     flex: 1
   },
+  bntBlock: {
+    width: '100%',
+    flexDirection: 'row'
+  },
   mainContent: {
     flex: 1
   },

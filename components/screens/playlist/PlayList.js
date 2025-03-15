@@ -18,6 +18,9 @@ import { checkFolderDownloadTracks, saveCollections,
   updateSheduler }
   from '../../shared/helpers';
 
+
+import { updateBasesTracks } from '../../shared/helpers/base_utils';
+
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
   const trackGeneratorRef = React.useRef(null)
@@ -69,7 +72,6 @@ export default function PlayList() {
 
   const clientCollections = async () => {
     const clientCollections = await getSavedCollections()
-    console.log('clientCollections', clientCollections)
     if (clientCollections.length === 0) {
       const response = await getClientCollections()
       if (response.status === 200) {
@@ -137,7 +139,10 @@ export default function PlayList() {
     const updatedShedule = await updateSheduler()
   }
 
-  const handleUpdateBases = async () => {}
+  const handleUpdateBases = async () => {
+    const collectionBases =  await updateBasesTracks()
+    console.log('collectionBases', collectionBases)
+  }
 
   React.useEffect(() => {
     const collections = async () => {
@@ -153,7 +158,7 @@ export default function PlayList() {
     <View style={styles.mainContainer}>
       <Header />
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
-      <View>
+      <View style={styles.bntBlock}>
         <Button title='Обновить расписание' onPress={handleUpdateSheduler} />
         <Button title='Обновить базы' onPress={handleUpdateBases} />
       </View>
