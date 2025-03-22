@@ -140,6 +140,7 @@ export default function PlayList() {
   }
 
   const handleUpdateBases = async () => {
+    console.log('UPDATE BASES CLICK')
     const collectionBases =  await updateBasesTracks()
     console.log('collectionBases', collectionBases)
   }
@@ -157,10 +158,15 @@ export default function PlayList() {
   return(
     <View style={styles.mainContainer}>
       <Header />
+      <Button title='Clear app' onPress={deleteStorageCollections}/>
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
       <View style={styles.bntBlock}>
-        <Button title='Обновить расписание' onPress={handleUpdateSheduler} />
-        <Button title='Обновить базы' onPress={handleUpdateBases} />
+        <View style={styles.btnContainer}>
+          <Button title='Обновить расписание' onPress={handleUpdateSheduler} />
+        </View>
+        <View style={styles.btnContainer}>
+          <Button title='Обновить базы' onPress={handleUpdateBases} />
+        </View>
       </View>
       <LinearGradient style={styles.mainContent} colors={['rgba(120, 135, 251, 0.312)', 'rgba(204, 102, 198, 0.1508)', 'rgba(255, 255, 255, 0.52)']}>
         <View style={styles.mainContent}>
@@ -191,7 +197,6 @@ export default function PlayList() {
                 />
               ))}
             </View>
-            
           </ScrollView>
           <AudioPlayer
           tracks={tracks}

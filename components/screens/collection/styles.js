@@ -5,12 +5,18 @@ export const styles = StyleSheet.create({
   mainContainer: {
     flex: 1
   },
-  tracksList: {
-    flexDirection: 'column',
-    paddingLeft: '10%',
-    paddingRight: '10%',
+  mainContent: {
+    flex: 1
   },
   trackItem: {
-    margin: 3
+    marginTop: 6,
+  },
+  flatList: {
+    flex: 1,
+    marginLeft: '10%',
+  },
+  trackTitle: {
+    // marginLeft: 20,
+    // fontSize: 16
   },
 })

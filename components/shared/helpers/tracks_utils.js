@@ -41,7 +41,7 @@ export const checkFolderDownloadTracks = async(clientCollectionData, onProgres) 
 
 
 
-const saveFileToFolder = async(folderUri, filesList) => {
+export const saveFileToFolder = async(folderUri, filesList) => {
   const dirInfo = await FileSystem.getInfoAsync(folderUri)
   console.log('save file to folder', folderUri)
   let downloadTrackCount = 0
@@ -72,4 +72,32 @@ const saveFileToFolder = async(folderUri, filesList) => {
   }
 }
 
+
+export const saveFileByName = async (folderUri, filesList) => {
+  console.log('save file to folder by name', folderUri)
+  let downloadTrackCount = 0
+  let errorDownloadTrackCount = 0
+  for (const file of filesList) {
+    console.log('file', file)
+    const fileUri = `${folderUri}${file}`
+    console.log('fileUri', fileUri)
+    try {
+      console.log('track download', file)
+      const fileData = file.split('.')
+      console.log(fileData)
+      const result = await FileSystem.downloadAsync(
+        `https://music-sol.ru/api/app_routers/download_track_by_name/${fileData[0]}`,
+        fileUri
+      )
+      downloadTrackCount += 1
+    } catch (e) {
+      console.error(e)
+      errorDownloadTrackCount += 1
+    }
+  }
+  return {
+    'downloadTrackCount': downloadTrackCount,
+    'errorDownloadTrackCount': errorDownloadTrackCount
+  }
+}
 

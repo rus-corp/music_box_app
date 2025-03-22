@@ -13,11 +13,9 @@ export const downloadAudio = async (trackId) => {
 }
 
 
-export const getBaseTracksByName = async (baseName, limit, offset) => {
+export const getBaseTracksByName = async (baseName) => {
   let responseData = {
     'base_name': baseName,
-    'limit': limit,
-    'offset': offset
   }
   try {
     const response = await backend.post(

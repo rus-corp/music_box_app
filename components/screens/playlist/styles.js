@@ -9,6 +9,9 @@ export const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row'
   },
+  btnContainer: {
+    flex: 1,
+  },
   mainContent: {
     flex: 1
   },

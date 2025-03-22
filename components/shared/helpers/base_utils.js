@@ -3,6 +3,9 @@ import * as FileSystem from 'expo-file-system'
 import { getCollectionBases } from './collection_utils'
 import { getBaseTracksByName } from '../../../api'
 
+import { saveFileByName } from './tracks_utils'
+
+
 export const createFolder = async(baseName) => {
   const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
   const folderUri = `${FileSystem.documentDirectory}bases/${correctName}/`
@@ -22,55 +25,73 @@ export const createFolder = async(baseName) => {
 
 
 export const updateBasesTracks = async () => {
-  let offset = 0;
-  const limit = 50
   const collectionBases = await getCollectionBases()
+  console.log('collectionBases', collectionBases)
   const bases = collectionBases.flatMap((collection) => Object.values(collection).flat())
+  console.log('bases', bases)
   for (const base of bases) {
     const basePathName = base.replace(/[^a-zA-Z0-9]/g, '_')
-    const basePath = `${FileSystem.documentDirectory}bases/${basePathName}`
+    const basePath = `${FileSystem.documentDirectory}bases/${basePathName}/`
     console.log('basePath', basePath)
     const localFiles = await FileSystem.readDirectoryAsync(basePath)
     console.log('localFiles', localFiles)
-    while (true) {
-      const response = await getBaseTracksByName(base, limit, offset)
-      if (response.status === 200) {
-        const serverFiles = response.data
-        if (serverFiles.length === 0) break
-        const serverFileList = serverFiles.map((file) => file.title)
-        const deleteExtraFiles = await removeExtraFiles(basePath, localFiles, serverFileList)
-        // const downloadMissingFiles = await uploadMissingFiles(basePath, localFiles, serverFileList)
-        offset += limit
-      } else {
-        throw new Error(`Ошибка запроса: ${response.status}`)
-      }
-
-
+    const response = await getBaseTracksByName(base)
+    console.log('response', response.data)
+    const serverTracksTitle = response.data.map((track) => `${track.title}.mp3`)
+    console.log('serverTracksTitle', serverTracksTitle)
+    const needDownloadTracks = checkFileToDownload(localFiles, serverTracksTitle) 
+    const needRemoveTracks = checkFileToRemove(localFiles, serverTracksTitle)
+    console.log('needDownloadTracks', needDownloadTracks)
+    console.log('needRemoveTracks', needRemoveTracks)
+    if (needRemoveTracks.length > 0) {
+      const removeFiles = await removeExtraFiles(basePath, needRemoveTracks)
     }
-    console.log('localFiles', localFiles)
-    console.log('serverFiles', serverFiles.data)
+    if (needDownloadTracks.length > 0) {
+      const downloadFiles = await uploadMissingFiles(basePath, needDownloadTracks)
+    }
   }
-  return { 'success': true }
+  return { 'downloadTracks': needDownloadTracks, 'deletedTracks': needRemoveTracks }
 }
 
 
 
 
-const uploadMissingFiles = async (basePath, localTracks, serverTracks) => {
-  for (const file of serverTracks) {
-    if(!localTracks.includes(file)) {
-      'downloading file'
+const checkFileToRemove = (localTracks, serverTracks) => {
+  let tracks = []
+  for (const track of localTracks) {
+    // если на сервере трека нет, а локально есть то мы его удаляем
+    if (!serverTracks.includes(track)) {
+      tracks.push(track)
     }
   }
+  return tracks
 }
 
-const removeExtraFiles = async (basePath, localTracks, serverTracks) => {
-  for (const file of localTracks) {
-    if (!serverTracks.includes(file)) {
-      const filePath = `${basePath}/${file}`
-      console.log('filePath', filePath)
-      await FileSystem.deleteAsync(filePath, { idempotent: true })
-      console.log('file deleted', filePath)
+const checkFileToDownload = (localTracks, serverTracks) => {
+  let tracks = []
+  for (const track of serverTracks) {
+    // если файл есть на сервере, но нет локально то качаем
+    if (!localTracks.includes(track)) {
+      tracks.push(track)
     }
+  }
+  return tracks
+}
+
+
+const uploadMissingFiles = async (basePath, trackList) => {
+  console.log('download file func')
+  const savedFiles = await saveFileByName(basePath, trackList)
+  return savedFiles
+}
+
+
+
+const removeExtraFiles = async (basePath, trackList) => {
+  console.log('remove file func')
+  for (const track of trackList) {
+    const filePath = `${basePath}${track}`
+    await FileSystem.deleteAsync(filePath, { idempotent: true })
+    console.log('file deleted', filePath)
   }
 }

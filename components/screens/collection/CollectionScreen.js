@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, Platform, FlatList } from 'react-native';
+import { View, Text, FlatList, ScrollView } from 'react-native';
 import { styles } from './styles'
 import Header from '../../ui/header/Header';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,6 +17,7 @@ export default function CollectionScreen({ route }) {
     const tracks = await getCollectionFiles(collectionName)
     setCollectionTracksData(tracks)
   }
+  console.log('collectionTracksData', collectionTracksData.length)
 
   React.useEffect(() => {
     collectionTracks(title)
@@ -33,13 +34,15 @@ export default function CollectionScreen({ route }) {
         collectionImage={image}
         tracksCount={collectionTracksData.length}
         />
-        <View style={styles.tracksList}>
-          <FlatList
-          data={collectionTracksData}
-          renderItem={({item, indx}) => <TrackItem key={indx} trackTitle={item} />}
-          keyExtractor={item => item.id}
-          />
-        </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={styles.flatList}>
+            {collectionTracksData.map((item, indx) => (
+              <TrackItem key={indx}
+              trackTitle={item}
+              />
+            ))}
+          </View>
+        </ScrollView>
       </LinearGradient>
     </View>
   );
@@ -50,7 +53,7 @@ export default function CollectionScreen({ route }) {
 function TrackItem ({ trackTitle }) {
   return (
     <View style={styles.trackItem}>
-      <Text>{trackTitle}</Text>
+      <Text style={styles.trackTitle}>{trackTitle}</Text>
     </View>
   );
 }
