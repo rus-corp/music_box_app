@@ -14,33 +14,31 @@ export default function Collection({
   collectionId,
   startPlay,
   collectionDownload,
-  onRegisterStartPlay
+  // onRegisterStartPlay
 }) {
   const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
-  const [press, setPress] = React.useState(false)
   const [folderExsist, setFolderExsist] = React.useState(true)
-  const [basesData, setBasesData] = React.useState(null)
-  const trackGeneratorRef = React.useRef(null)
+  // const trackGeneratorRef = React.useRef(null)
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
-  const handleCreateDir = async() => {
-  }
+  // const handleCreateDir = async() => {
+  // }
 
-  const handleStartPlay = async () => {
-    if (!trackGeneratorRef.current) return
-    const { value, done } = trackGeneratorRef.current.next()
-    if (value) {
-      startPlay(value)
-    }
-    return value
-  }
+  // const handleStartPlay = async () => {
+  //   if (!trackGeneratorRef.current) return
+  //   const { value, done } = trackGeneratorRef.current.next()
+  //   if (value) {
+  //     startPlay(value)
+  //   }
+  //   return value
+  // }
 
-  const handleDeleteFolder = async() => {
-    const folder = await deleteFolder(collectionTitle)
-    setFolderExsist(folder)
-  }
+  // const handleDeleteFolder = async() => {
+  //   const folder = await deleteFolder(collectionTitle)
+  //   setFolderExsist(folder)
+  // }
 
   React.useEffect(() => {
     const handleCheckFolder = async () => {
@@ -48,9 +46,9 @@ export default function Collection({
       setFolderExsist(exsist)
     }
     handleCheckFolder()
-    if (onRegisterStartPlay) {
-      onRegisterStartPlay(handleStartPlay)
-    }
+    // if (onRegisterStartPlay) {
+    //   onRegisterStartPlay(handleStartPlay)
+    // }
   }, [collectionTitle, collectionDownload])
 
   return(

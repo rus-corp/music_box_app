@@ -51,23 +51,6 @@ export const getBasesTracks = async(collectionName) => {
       }
     }
   }
-  // for (collection of clientCollectionParse) {
-  //   for (const base of collection.base_collection_association) {
-  //     const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
-  //     const baseDir = `${FileSystem.documentDirectory}${baseName}`
-  //     try {
-  //       const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-  //       const trackPath = baseTracks.map((track) => `${baseDir}/${track}`)
-  //       bases.push({
-  //         name: baseName,
-  //         trackQuantity: base.track_quantity,
-  //         tracks: trackPath
-  //       })
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   }
-  // }
   return bases
 }
 
@@ -117,6 +100,7 @@ export function* trackListGenerator(bases, batchSize=20) {
   while (true) {
     const base = bases[baseIndex]
     const trackCount = base.trackQuantity
+    const baseName = base.name
     const startIndex = trackIndexes[baseIndex]
 
     const selectedTracks = []
@@ -127,29 +111,7 @@ export function* trackListGenerator(bases, batchSize=20) {
       trackIndexes[baseIndex] = (trackIndexes[baseIndex] + 1) % base.tracks.length
     }
     baseIndex = (baseIndex + 1) % bases.length
-    yield selectedTracks
+    // yield selectedTracks
+    yield { selectedTracks, baseName }
   }
-  // console.log(bases)
-  // let lastIndex = 0
-  // while (true) {
-  //   let allTracks = []
-  //   for (const base of bases) {
-  //     const trackCount = base.trackQuantity
-  //     console.log('trackCount', trackCount)
-  //     const selectedTracks = base.tracks.slice(lastIndex, lastIndex + trackCount)
-  //     lastIndex = (lastIndex + trackCount) % base.tracks.length
-  //     allTracks.push(...selectedTracks)
-  //   }
-    // while (allTracks.length < batchSize) {
-    //   for (const base of bases) {
-    //     console.log('generator base', base)
-    //     if (allTracks.length >= batchSize) break
-
-    //     if (base.tracks.length === 0) continue
-
-    //     const selectedTracks = base.tracks.splice(0, base.trackQuantity)
-    //     allTracks.push(...selectedTracks)
-    //   }
-    //   if (allTracks.length === 0) return
-    // }
 }

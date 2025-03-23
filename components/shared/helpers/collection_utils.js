@@ -86,7 +86,6 @@ export const clearApp = async () => {
 export const getCollectionBases = async() => {
   const clientCollections = await AsyncStorage.getItem('clientCollections')
   const clientCollectionsParse = JSON.parse(clientCollections)
-  console.log('clientCollectionsParse', clientCollectionsParse)
   return  clientCollectionsParse.map((collection) => ({
   [collection.name]: collection.base_collection_association.map((base) => base.base_collection.name)
   }))

@@ -9,9 +9,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { getRandomTrack } from '../../shared/helpers';
+import { saveTrackLogsToStorage } from '../../shared/helpers';
 
-
-export default function AudioPlayer({ tracks, onRequestMoreTracks, fetchBases }) {
+export default function AudioPlayer({
+  tracks,
+  onRequestMoreTracks,
+  fetchBases,
+  baseName
+}) {
 
   const [sound, setSound] = React.useState(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
@@ -48,22 +53,24 @@ export default function AudioPlayer({ tracks, onRequestMoreTracks, fetchBases })
     if (!sound) return;
     const statusUpdate = async (status) => {
       if (status.didJustFinish) {
+        await saveTrackLogsToStorage(
+          tracks[currentTrackIndex],
+          baseName
+        )
         const nextIndex = currentTrackIndex + 1
         if (nextIndex > (tracks.length - 1)) {
-          if (onRequestMoreTracks) {
-            const newTracks = await fetchBases()
-            console.log('newTracks', newTracks)
-            setCurrentTrackIndex(0)
-            const nextTrack = newTracks[0]
-            setCurrentTrack(nextTrack)
-            await sound.unloadAsync();
-            const {sound: newSound} = await Audio.Sound.createAsync(
-              { uri: nextTrack },
-              { shouldPlay: true }
-            )
-            setSound(newSound)
-            setIsPlaying(true)
-          }
+          const newTracks = await fetchBases()
+          console.log('newTracks', newTracks)
+          setCurrentTrackIndex(0)
+          const nextTrack = newTracks[0]
+          setCurrentTrack(nextTrack)
+          await sound.unloadAsync();
+          const {sound: newSound} = await Audio.Sound.createAsync(
+            { uri: nextTrack },
+            { shouldPlay: true }
+          )
+          setSound(newSound)
+          setIsPlaying(true)
         } else {
           setCurrentTrackIndex(nextIndex)
           const nextTrack = tracks[nextIndex]

@@ -30,7 +30,7 @@ export default function PlayList() {
   const [progress, setProgress] = React.useState(0)
   const [downloading, setDownloading] = React.useState(false)
   const [downloadCollection, setDowmloadCollection] = React.useState(false)
-  const [handleStartPlayData, setHandleStartPlayData] = React.useState(null)
+  const [currentBaseName, setCurrentBaseName] = React.useState('')
 
   const handleStartPlay = async () => {
     const sheduleData = await handleCheckClientSheduler()
@@ -48,9 +48,11 @@ export default function PlayList() {
     console.log('data', data)
     trackGeneratorRef.current = trackListGenerator(data, 20)
     const { value, done } = trackGeneratorRef.current.next()
+
     console.log('value', value)
     if (value) {
-      setTracks(value)
+      setTracks(value.selectedTracks)
+      setCurrentBaseName(value.baseName)
     }
   }
 
@@ -130,7 +132,8 @@ export default function PlayList() {
     }
     const { value, done } = trackGeneratorRef.current.next()
     if (value) {
-      setTracks(value)
+      setTracks(value.selectedTracks)
+      setCurrentBaseName(value.baseName)
     }
     return value
   }
@@ -193,7 +196,7 @@ export default function PlayList() {
                 collectionId={collectionItem.id}
                 // startPlay={handleStartPlay}
                 collectionDownload={downloadCollection}
-                onRegisterStartPlay={setHandleStartPlayData}
+                // onRegisterStartPlay={setHandleStartPlayData}
                 />
               ))}
             </View>
@@ -202,6 +205,7 @@ export default function PlayList() {
           tracks={tracks}
           fetchBases={getNextTrackList}
           onRequestMoreTracks={handleStartPlayData}
+          baseName={currentBaseName}
           />
         </View>
       </LinearGradient>
