@@ -10,6 +10,6 @@ export const sendTrackLogs = async (logsData) => {
     )
     return response
   } catch (error) {
-    console.log(error)
+    return error.response.status
   }
 }

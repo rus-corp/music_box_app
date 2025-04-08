@@ -42,20 +42,35 @@ export const getSavedCollections = async () => {
 export const getCollectionFiles = async (collectionTitle) => {
   const clientCollectionsJson = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollectionsJson)
+  console.log('clientCollectionParse', clientCollectionParse)
   let tracks = []
+  const collectionBases = []
   for (const collection of clientCollectionParse) {
     if (collection.name === collectionTitle) {
-      for (const base of collection.base_collection_association) {
-        const baseName = base.base_collection.name
-        const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
-        const baseDir = `${FileSystem.documentDirectory}bases/${correctName}/`
-        const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-        console.log('baseTracks', baseTracks)
-        tracks = [...tracks, ...baseTracks]
-      } 
-      return tracks
+      // console.log('base_collection_association', collection.base_collection_association)
+      collectionBases.push(collection.base_collection_association)
+      // collectionBases = collection.base_collection_association
     }
   }
+  console.log('collectionBases', collectionBases)
+  const flatBases = collectionBases.flat()
+  console.log('flatBases', flatBases)
+  for (const base of flatBases) {
+    const baseName = base.base_collection.name
+    const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
+    const baseDir = `${FileSystem.documentDirectory}bases/${correctName}/`
+    console.log('baseDir', baseDir)
+    try {
+      const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
+      console.log('baseTracks', baseTracks.length)
+      const trackPath = baseTracks.map((track) => `${baseDir}${track}`)
+      tracks = [...tracks, ...trackPath]
+      console.log('tracks', tracks.length)
+    } catch (error) {
+      console.log('Error reading directory:', error)
+    }
+  }
+  return tracks
 }
 
 export const clearApp = async () => {
@@ -67,18 +82,17 @@ export const clearApp = async () => {
   // console.log('afterbaseDir', afterbaseDir)
   const clientCollections = await AsyncStorage.getItem('clientCollections')
   const clientCollectionsParse = JSON.parse(clientCollections)
-  console.log('clientCollectionsParse', clientCollectionsParse)
   for (const collection of clientCollectionsParse) {
-    console.log('collection', collection)
     for (const base of collection.base_collection_association) {
       const baseName = base.base_collection.name
       const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
-      console.log('baseName', correctName)
+      console.log('delete baseName', correctName)
       await deleteFolder(correctName)
     }
   }
   const deletedCollections = await deleteClientCollections()
   const deletedSheduler = await deleteSheduler()
+  // await AsyncStorage.removeItem('access_token')
   console.log('deletedCollections', deletedCollections)
 }
 

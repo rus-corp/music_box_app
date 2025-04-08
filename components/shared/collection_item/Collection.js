@@ -1,10 +1,8 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { styles } from './styles'
-import { baseUrl, getCollectionTracks, getCollectionBases } from '../../../api';
 import { useNavigation } from '@react-navigation/native';
-import { checkFolder, deleteFolder, getStartTrackList, getBasesTracks } from '../helpers';
-import { trackListGenerator } from '../helpers/play_utils';
+import { checkFolder, deleteFolder, getStartTrackList, getBasesTracks, getCollectionFiles } from '../helpers';
 
 
 export default function Collection({
@@ -14,15 +12,20 @@ export default function Collection({
   collectionId,
   startPlay,
   collectionDownload,
-  // onRegisterStartPlay
 }) {
   const imageSource = 'https://music-sol.ru/api' + image
   const navigation = useNavigation()
-  const [folderExsist, setFolderExsist] = React.useState(true)
-  // const trackGeneratorRef = React.useRef(null)
   const handlePress = () => {
     navigation.navigate('CollectionDetails', { title: collectionTitle, image: image })
   }
+
+  // const handleCheckCollectionDownloadTrack = async (collectionName) => {
+  //   const tracks = await getCollectionFiles(collectionName)
+  //   console.log('tracks len', tracks.length)
+  //   return tracks.length
+  // }
+
+  // const downloadTrackCount = handleCheckCollectionDownloadTrack(collectionTitle)
   // const handleCreateDir = async() => {
   // }
 
@@ -40,16 +43,15 @@ export default function Collection({
   //   setFolderExsist(folder)
   // }
 
-  React.useEffect(() => {
-    const handleCheckFolder = async () => {
-      const exsist = await checkFolder(collectionTitle)
-      setFolderExsist(exsist)
-    }
-    handleCheckFolder()
-    // if (onRegisterStartPlay) {
-    //   onRegisterStartPlay(handleStartPlay)
-    // }
-  }, [collectionTitle, collectionDownload])
+  // React.useEffect(() => {
+  //   const handleCheckCollectionDownloadTrack = async (collectionName) => {
+  //     const tracks = await getCollectionFiles(collectionName)
+  //     console.log('tracks len', tracks.length)
+  //     setDownloadedTracks(tracks.length)
+  //     return tracks.length
+  //   }
+  //   handleCheckCollectionDownloadTrack(collectionTitle)
+  // }, [collectionTitle, collectionDownload])
 
   return(
     <TouchableOpacity style={{ width: '16%', height: 250 }} onPress={handlePress}>
@@ -58,6 +60,7 @@ export default function Collection({
         <View style={styles.content}>
           <Text style={styles.title}>{collectionTitle}</Text>
           <Text style={styles.desc}>{trackCount} треков</Text>
+          {/* <Text style={styles.desc}>{downloadTrackCount} Загружено треков</Text> */}
         </View>
       </View>
     </TouchableOpacity>

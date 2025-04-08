@@ -1,4 +1,6 @@
 import React from 'react';
+import * as FileSystem from 'expo-file-system'
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { styles } from './styles'
 
@@ -11,6 +13,8 @@ import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+import { checkFileSize } from '../../../api/downloading/download_api';
+
 import { getClientCollections } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
   getSavedCollections, clearApp, getBasesTracks, trackListGenerator,
@@ -20,6 +24,10 @@ import { checkFolderDownloadTracks, saveCollections,
 
 
 import { updateBasesTracks } from '../../shared/helpers/base_utils';
+
+
+import { getTrackLogs } from '../../shared/helpers/track_logs';
+
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
@@ -36,20 +44,15 @@ export default function PlayList() {
     const sheduleData = await handleCheckClientSheduler()
     console.log('sheduleData', sheduleData)
     const currentShedule = getCurrentSheduler(sheduleData)
-    console.log(currentShedule)
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     currentCollectionRef.current = currentShedule
-    console.log('currentCollectionRef.current', currentCollectionRef.current)
     const data = await getBasesTracks(currentShedule)
-    console.log('data', data)
     trackGeneratorRef.current = trackListGenerator(data, 20)
     const { value, done } = trackGeneratorRef.current.next()
-
-    console.log('value', value)
     if (value) {
       setTracks(value.selectedTracks)
       setCurrentBaseName(value.baseName)
@@ -61,13 +64,20 @@ export default function PlayList() {
   }
 
   const handlePress = async (collectionData) => {
+    await activateKeepAwakeAsync()
     setProgress(0)
     setDownloading(true)
-    await checkFolderDownloadTracks(collectionData, (current, total) => {
-      setProgress((current / total) * 100)
-    })
-    setDownloading(false)
-    handleCheckDownloadCollection()
+    try {
+      await checkFolderDownloadTracks(collectionData, (current, total) => {
+        setProgress((current / total) * 100)
+      })
+      handleCheckDownloadCollection()
+    } catch (error) {
+      console.log('Error downloading tracks:', error)
+    } finally {
+      setDownloading(false)
+      await deactivateKeepAwake()
+    }
   }
 
 
@@ -78,8 +88,7 @@ export default function PlayList() {
       const response = await getClientCollections()
       if (response.status === 200) {
         const handleSaveCollection = await saveCollections(response.data)
-        console.log('handleSaveCollection', handleSaveCollection)
-        setCollections(response.data)
+        setCollections(handleSaveCollection)
         return handleSaveCollection
       }
     } else {
@@ -91,17 +100,12 @@ export default function PlayList() {
 
   const handleDeleteAccess = async () => {
     const token = await AsyncStorage.removeItem('access_token')
-    console.log(token)
     const deletedToken = await AsyncStorage.getItem('access_token')
     console.log(deletedToken)
   }
 
-  const deleteStorageCollections = async () => {
-    await clearApp()
-    console.log('collections deleted')
-  }
-
   const fetchBases = async (collectionData) => {
+    // console.log('fetch bases collectionData', collectionData)
     const collectionFolders = await checkCollectionFolders()
     if (collectionFolders.some(item => item.folderInfo === false)) {
       Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
@@ -112,22 +116,16 @@ export default function PlayList() {
   }
 
   const getNextTrackList = async () => {
-    console.log('next gen')
     const sheduleData = await handleCheckClientSheduler()
     const currentShedule = getCurrentSheduler(sheduleData)
-    console.log('next gen currentShedule', currentShedule)
-    console.log('currentCollectionRef.current', currentCollectionRef.current)
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     if (currentShedule !== currentCollectionRef.current) {
-      console.log('new collection shedul')
       currentCollectionRef.current = currentShedule
-      console.log(' new currentCollectionRef', currentCollectionRef)
       const data = await getBasesTracks(currentShedule)
-      console.log('next collection', data)
       trackGeneratorRef.current = trackListGenerator(data, 20)
     }
     const { value, done } = trackGeneratorRef.current.next()
@@ -143,9 +141,7 @@ export default function PlayList() {
   }
 
   const handleUpdateBases = async () => {
-    console.log('UPDATE BASES CLICK')
     const collectionBases =  await updateBasesTracks()
-    console.log('collectionBases', collectionBases)
   }
 
   React.useEffect(() => {
@@ -157,11 +153,21 @@ export default function PlayList() {
     }
     collections()
   }, [user])
+
+  const handleCheckSize = async() => {
+    // await clearApp()
+    const folders = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}`)
+    console.log(folders)
+    // await FileSystem.deleteAsync(`${FileSystem.documentDirectory}bases/`)
+    // const res = await getTrackLogs()
+    // console.log('track logs', res)
+    // console.log(res.length)
+  }
   
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title='Clear app' onPress={deleteStorageCollections}/>
+      <Button title='Clear App' onPress={handleCheckSize} />
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
       <View style={styles.bntBlock}>
         <View style={styles.btnContainer}>
@@ -204,7 +210,7 @@ export default function PlayList() {
           <AudioPlayer
           tracks={tracks}
           fetchBases={getNextTrackList}
-          onRequestMoreTracks={handleStartPlayData}
+          // onRequestMoreTracks={handleStartPlayData}
           baseName={currentBaseName}
           />
         </View>

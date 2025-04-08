@@ -15,9 +15,10 @@ export default function CollectionScreen({ route }) {
 
   const collectionTracks = async (collectionName) => {
     const tracks = await getCollectionFiles(collectionName)
+    // console.log('tracks', tracks)
     setCollectionTracksData(tracks)
   }
-  console.log('collectionTracksData', collectionTracksData.length)
+  // console.log('collectionTracksData', collectionTracksData.length)
 
   React.useEffect(() => {
     collectionTracks(title)
@@ -51,9 +52,17 @@ export default function CollectionScreen({ route }) {
 
 
 function TrackItem ({ trackTitle }) {
+  const formatTrackTitle = (trackName) => {
+    if (trackName) {
+      const trackSliceName = trackName.split('/')
+      return trackSliceName[trackSliceName.length - 1].slice(0, -4).replaceAll('_', ' ')
+    } else {
+      return ''
+    }
+  }
   return (
     <View style={styles.trackItem}>
-      <Text style={styles.trackTitle}>{trackTitle}</Text>
+      <Text style={styles.trackTitle}>{formatTrackTitle(trackTitle)}</Text>
     </View>
   );
 }

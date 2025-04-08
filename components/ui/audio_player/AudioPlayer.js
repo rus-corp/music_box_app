@@ -8,12 +8,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { getRandomTrack } from '../../shared/helpers';
 import { saveTrackLogsToStorage } from '../../shared/helpers';
+
 
 export default function AudioPlayer({
   tracks,
-  onRequestMoreTracks,
   fetchBases,
   baseName
 }) {
@@ -22,6 +21,7 @@ export default function AudioPlayer({
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [currentTrack, setCurrentTrack] = React.useState(tracks[0])
   const [currentTrackIndex, setCurrentTrackIndex] = React.useState(0)
+  const [currentBaseName, setCurrentBaseName] = React.useState(baseName)
 
   const trackTitleSlice = (trackName) => {
     if (trackName) {
@@ -53,16 +53,21 @@ export default function AudioPlayer({
     if (!sound) return;
     const statusUpdate = async (status) => {
       if (status.didJustFinish) {
+        const basetoUse = currentBaseName || baseName
+        const logTime = new Date().toISOString().slice(0, -1)
         await saveTrackLogsToStorage(
           tracks[currentTrackIndex],
-          baseName
+          basetoUse,
+          logTime
         )
         const nextIndex = currentTrackIndex + 1
         if (nextIndex > (tracks.length - 1)) {
-          const newTracks = await fetchBases()
-          console.log('newTracks', newTracks)
+          const newTracksData = await fetchBases()
+          const newTracks = newTracksData.selectedTracks
           setCurrentTrackIndex(0)
+          setCurrentBaseName(newTracksData.baseName)
           const nextTrack = newTracks[0]
+          const fileINfo = await FileSystem.getInfoAsync(nextTrack)
           setCurrentTrack(nextTrack)
           await sound.unloadAsync();
           const {sound: newSound} = await Audio.Sound.createAsync(
@@ -74,6 +79,7 @@ export default function AudioPlayer({
         } else {
           setCurrentTrackIndex(nextIndex)
           const nextTrack = tracks[nextIndex]
+          const fileINfo = await FileSystem.getInfoAsync(nextTrack)
           setCurrentTrack(nextTrack)
           await sound.unloadAsync();
           const {sound: newSound} = await Audio.Sound.createAsync(
@@ -93,6 +99,7 @@ export default function AudioPlayer({
 
   async function loadAndPlayAudio() {
     if (!currentTrack) return;
+    const fileInfo = await FileSystem.getInfoAsync(currentTrack)
     const { sound } = await Audio.Sound.createAsync(
       { uri: currentTrack },
       { shouldPlay: true }

@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const baseUrl = 'https://music-sol.ru/api'
 
 
-const getAccessToken = async () => {
+export const getAccessToken = async () => {
   const token = await AsyncStorage.getItem('access_token')
   return token
 }

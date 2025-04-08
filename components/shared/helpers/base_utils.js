@@ -2,8 +2,9 @@ import * as FileSystem from 'expo-file-system'
 
 import { getCollectionBases } from './collection_utils'
 import { getBaseTracksByName } from '../../../api'
+import { getAccessToken } from '../../../api/_variables'
+import { getSavedCollections } from './collection_utils'
 
-import { saveFileByName } from './tracks_utils'
 
 
 export const createFolder = async(baseName) => {
@@ -19,7 +20,7 @@ export const createFolder = async(baseName) => {
     }
     return folderUri
   } else {
-    return folderInfo.uri
+    return `${folderInfo.uri}/`
   }
 }
 
@@ -94,4 +95,56 @@ const removeExtraFiles = async (basePath, trackList) => {
     await FileSystem.deleteAsync(filePath, { idempotent: true })
     console.log('file deleted', filePath)
   }
+}
+
+
+const saveFileByName = async (folderUri, filesList) => {
+  console.log('save file to folder by name', folderUri)
+  let downloadTrackCount = 0
+  let errorDownloadTrackCount = 0
+  for (const file of filesList) {
+    console.log('file', file)
+    const fileUri = `${folderUri}${file}`
+    console.log('fileUri to download', fileUri)
+    try {
+      console.log('track download', file)
+      const fileData = file.split('.')
+      console.log('fileData', fileData)
+      const result = await FileSystem.downloadAsync(
+        `https://music-sol.ru/api/app_routers/download_track_by_name/${fileData[0]}`,
+        fileUri,
+        {
+          headers: {
+            Authorization: `Bearer ${await getAccessToken()}`
+          }
+        }
+      )
+      console.log('result', result)
+      downloadTrackCount += 1
+    } catch (e) {
+      console.error(e)
+      errorDownloadTrackCount += 1
+    }
+  }
+  return {
+    'downloadTrackCount': downloadTrackCount,
+    'errorDownloadTrackCount': errorDownloadTrackCount
+  }
+}
+
+
+
+export const getUnqiueBaseNames = async (collectionData) => {
+  let unqiueBaseNames = []
+  for (const collection of collectionData) {
+    for (const base of collection.base_collection_association) {
+      const baseName = base.base_collection.name
+      const baseId = base.base_collection.id
+      const baseExist = unqiueBaseNames.some((base) => base.id === baseId)
+      if (!baseExist) {
+        unqiueBaseNames.push({ 'name': baseName, 'id': baseId })
+      }
+    }
+  }
+  return unqiueBaseNames
 }

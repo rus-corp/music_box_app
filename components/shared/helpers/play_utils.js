@@ -29,6 +29,7 @@ export const getStartTrackList = async(collectionName) => {
 
 
 export const getBasesTracks = async(collectionName) => {
+  console.log('collectionName', collectionName)
   let bases = []
   const clientCollectionsJson = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollectionsJson)
@@ -89,29 +90,27 @@ export const getNextTrackUri = async (trackUri) => {
 }
 
 
-const getRandomFiles = (filesList, count) => {
-  return filesList.sort(() => Math.random() - 0.5).slice(0, Math.min(count, filesList.length))
+const getRandomTRack = (maxLen) => {
+  return Math.floor(Math.random() * maxLen);
 }
 
-
 export function* trackListGenerator(bases, batchSize=20) {
+  console.log('bases', bases)
   let baseIndex = 0
-  let trackIndexes = bases.map(() => 0)
   while (true) {
     const base = bases[baseIndex]
     const trackCount = base.trackQuantity
     const baseName = base.name
-    const startIndex = trackIndexes[baseIndex]
-
     const selectedTracks = []
 
     for (let i=0; i < trackCount; i++) {
-      const trackIndex = (startIndex + i) % base.tracks.length
+      const trackIndex = getRandomTRack(base.tracks.length)
+      console.log('trackIndex', trackIndex)
       selectedTracks.push(base.tracks[trackIndex])
-      trackIndexes[baseIndex] = (trackIndexes[baseIndex] + 1) % base.tracks.length
     }
     baseIndex = (baseIndex + 1) % bases.length
     // yield selectedTracks
     yield { selectedTracks, baseName }
   }
 }
+
