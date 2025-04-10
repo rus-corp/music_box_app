@@ -18,7 +18,7 @@ import { AuthButton } from '../../ui/button/AuthButton';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppContext } from '../../../hooks/AppContext';
-
+import { appLogToFile } from '../../shared/helpers';
 import { authPost } from '../../../api';
 
 
@@ -51,9 +51,11 @@ export default function Auth() {
   }
 
   const handleSubmit = async() => {
+    const log = await appLogToFile(`user login : ${userData.username}/${userData.password}`)
     const params = querystring.stringify(userData)
     const response = await authPost(params)
     if (response.status === 201 && response.data.access_token) {
+      const log = await appLogToFile(`this user login resStatus`)
       await storeData('access_token', response.data.access_token)
       await storeData('refresh_token', response.data.refresh_token)
       setUser(response.data.access_token)
@@ -87,7 +89,8 @@ export default function Auth() {
                   <View style={styles.inputWrapper}>
                     <TextInput style={styles.inputField} onChangeText={handleChangePassword}></TextInput>
                   </View>
-                  <View>
+                  <View style={styles.error}>
+                    {responseData.length > 0 && <Text style={styles.errorText}>{responseData}</Text>}
                   </View>
                   <View style={styles.btnWrapper}>
                     <AuthButton handleLogin={handleSubmit}/>

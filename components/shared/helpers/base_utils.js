@@ -4,10 +4,11 @@ import { getCollectionBases } from './collection_utils'
 import { getBaseTracksByName } from '../../../api'
 import { getAccessToken } from '../../../api/_variables'
 import { getSavedCollections } from './collection_utils'
-
+import { appLogToFile } from './track_logs'
 
 
 export const createFolder = async(baseName) => {
+  await appLogToFile(`create folder func ${baseName}`)
   const correctName = baseName.replace(/[^a-zA-Z0-9]/g, '_')
   const folderUri = `${FileSystem.documentDirectory}bases/${correctName}/`
   const folderInfo = await FileSystem.getInfoAsync(folderUri)
@@ -29,7 +30,6 @@ export const updateBasesTracks = async () => {
   const collectionBases = await getCollectionBases()
   console.log('collectionBases', collectionBases)
   const bases = collectionBases.flatMap((collection) => Object.values(collection).flat())
-  console.log('bases', bases)
   for (const base of bases) {
     const basePathName = base.replace(/[^a-zA-Z0-9]/g, '_')
     const basePath = `${FileSystem.documentDirectory}bases/${basePathName}/`

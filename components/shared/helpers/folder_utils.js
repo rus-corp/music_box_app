@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { appLogToFile } from './track_logs';
 
 export const deleteFolder = async(folderTitle) => {
   console.log('delete folderTitle', folderTitle)
@@ -45,20 +45,24 @@ export const checkFolder = async (collectionName) => {
 
 
 export const checkCollectionFolders = async () =>{
+  await appLogToFile('checkCollectionFolders func')
   const folderInfoResponse = []
   const clientCollections = await AsyncStorage.getItem('clientCollections')
   const clientCollectionParse = JSON.parse(clientCollections)
   for (const collection of clientCollectionParse) {
     for (const base of collection.base_collection_association) {
+      await appLogToFile(`check folder bases ${JSON.stringify(base)}`)
       const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
       const baseDir = `${FileSystem.documentDirectory}bases/${baseName}/`
       const folderInfo = await FileSystem.getInfoAsync(baseDir)
+      await appLogToFile(`folderInfo ${baseDir}:${JSON.stringify(folderInfo)}`)
       folderInfoResponse.push({
         'baseName': baseName,
         'folderInfo': folderInfo.exists
       })
     }
   }
+  await appLogToFile(`checkCollectionFolders response ${JSON.stringify(folderInfoResponse)}`)
   return folderInfoResponse
 }
 

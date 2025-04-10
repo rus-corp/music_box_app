@@ -8,7 +8,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { saveTrackLogsToStorage } from '../../shared/helpers';
+import { trackLogToFile } from '../../shared/helpers';
+import { appLogToFile } from '../../shared/helpers';
+
 
 
 export default function AudioPlayer({
@@ -31,9 +33,13 @@ export default function AudioPlayer({
       return ''
     }
   }
+  const firstLog = async () => {
+    await appLogToFile(`track play start ${tracks[0]}`)
+  }
   
   React.useEffect(() => {
     if (!currentTrack) {
+      // firstLog()
       setCurrentTrack(tracks[0])
       Audio.setAudioModeAsync({
         staysActiveInBackground: true,
@@ -54,20 +60,19 @@ export default function AudioPlayer({
     const statusUpdate = async (status) => {
       if (status.didJustFinish) {
         const basetoUse = currentBaseName || baseName
-        const logTime = new Date().toISOString().slice(0, -1)
-        await saveTrackLogsToStorage(
-          tracks[currentTrackIndex],
-          basetoUse,
-          logTime
-        )
+        await trackLogToFile(currentTrack, basetoUse)
+        await appLogToFile(`track play finish ${currentTrack}`)
         const nextIndex = currentTrackIndex + 1
         if (nextIndex > (tracks.length - 1)) {
+          await appLogToFile(`track list ended, got new track list`)
           const newTracksData = await fetchBases()
           const newTracks = newTracksData.selectedTracks
+          await appLogToFile(`new tracks ${JSON.stringify(newTracks)}`)
           setCurrentTrackIndex(0)
           setCurrentBaseName(newTracksData.baseName)
+          await appLogToFile(`new tracks base ${newTracksData.baseName}`)
           const nextTrack = newTracks[0]
-          const fileINfo = await FileSystem.getInfoAsync(nextTrack)
+          await appLogToFile(`next new track ${nextTrack}`)
           setCurrentTrack(nextTrack)
           await sound.unloadAsync();
           const {sound: newSound} = await Audio.Sound.createAsync(
@@ -79,7 +84,7 @@ export default function AudioPlayer({
         } else {
           setCurrentTrackIndex(nextIndex)
           const nextTrack = tracks[nextIndex]
-          const fileINfo = await FileSystem.getInfoAsync(nextTrack)
+          await appLogToFile(`next track play start ${nextTrack}`)
           setCurrentTrack(nextTrack)
           await sound.unloadAsync();
           const {sound: newSound} = await Audio.Sound.createAsync(
@@ -100,6 +105,7 @@ export default function AudioPlayer({
   async function loadAndPlayAudio() {
     if (!currentTrack) return;
     const fileInfo = await FileSystem.getInfoAsync(currentTrack)
+    console.log('load and play', fileInfo)
     const { sound } = await Audio.Sound.createAsync(
       { uri: currentTrack },
       { shouldPlay: true }
@@ -109,6 +115,7 @@ export default function AudioPlayer({
   }
 
   async function handlePlayPause() {
+    console.log('handlePlayPause')
     if (sound) {
       if (isPlaying) {
         await sound.pauseAsync();
