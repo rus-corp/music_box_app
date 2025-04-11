@@ -74,12 +74,6 @@ export const getCollectionFiles = async (collectionTitle) => {
 }
 
 export const clearApp = async () => {
-  // console.log('clearApp')
-  // const baseDir = await FileSystem.readDirectoryAsync(FileSystem.documentDirectory)
-  // await deleteFolder('bases')
-  // const afterbaseDir = await FileSystem.readDirectoryAsync(FileSystem.documentDirectory)
-  // console.log('baseDir', baseDir)
-  // console.log('afterbaseDir', afterbaseDir)
   const clientCollections = await AsyncStorage.getItem('clientCollections')
   const clientCollectionsParse = JSON.parse(clientCollections)
   for (const collection of clientCollectionsParse) {

@@ -78,3 +78,6 @@ backend.interceptors.response.use((response) => {
 })
 
 
+export const appLogFileUri = FileSystem.documentDirectory + 'app_logs.txt'
+
+export const trackLogFileUri = FileSystem.documentDirectory + 'track_logs.txt'

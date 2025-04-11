@@ -100,22 +100,23 @@ export const saveFileToFolder = async(folderUri, filesList) => {
 
 export const checkBasesTracks = async () => {
   const basesList = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}bases/`)
-  // console.log('basesList', basesList)
+  await appLogToFile('check bases tracks')
   for (const base of basesList) {
     const folderUri = `${FileSystem.documentDirectory}bases/${base}/`
     const tracksList = await FileSystem.readDirectoryAsync(folderUri)
-    // console.log('tracksList', tracksList)
     for (const track of tracksList) {
       const trackUri = `${folderUri}${track}`
       const trackInfo = await FileSystem.getInfoAsync(trackUri)
-      // console.log('trackInfo', trackInfo)
       if (trackInfo.size < 1024) {
-        console.log('Track is empty:', trackUri)
+        await appLogToFile(`file {trackUri} ${trackInfo.size}`)
+        await FileSystem.deleteAsync(trackUri)
       }
       if (!trackInfo.exists) {
+        await appLogToFile(`file not exists ${trackUri}`)
         console.log('Track does not exists:', trackUri)
       }
     }
   }
-  console.log('checkBasesTracks finish')
+  await appLogToFile('check bases tracks end')
+  return true
 }

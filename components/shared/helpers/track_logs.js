@@ -1,58 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as Localization from 'expo-localization'
-import { sendTrackLogs } from "../../../api"
 import * as FileSystem from 'expo-file-system'
-
-
-
-
-
-export const getTrackLogs = async () => {
-  // await removeTrackLogs()
-  const value = await AsyncStorage.getItem('trackLogs')
-  return value ? JSON.parse(value) : []
-}
-
-
-const removeTrackLogs = async () => {
-  await AsyncStorage.removeItem('trackLogs')
-}
-
-
-
-export const saveTrackLogsToStorage = async (trackName, baseName, logTime) => {
-  let newValue = []
-  const formatName = (str) => str.replace(/_/g, ' ').trim()
-  const trackLogs = await getTrackLogs()
-  if (trackLogs.length > 5) {
-    const response = await sendTrackLogs(trackLogs)
-    if (response.status === 201) {
-      await removeTrackLogs()
-      newValue = [
-        {
-          'track_name': trackName,
-          'base_name': formatName(baseName),
-          'log_time': logTime
-        }
-      ]
-    }
-  } else {
-    newValue = [
-      ...trackLogs,
-      {
-        'track_name': trackName,
-        'base_name': formatName(baseName),
-        'log_time': logTime
-      }
-    ]
-  }
-  try {
-    await AsyncStorage.setItem('trackLogs', JSON.stringify(newValue))
-    return true
-  } catch (error) {
-    console.log('не удалось сохранить логи трека')
-  }
-}
+import { appLogFileUri, trackLogFileUri } from "../../../api"
 
 
 const getAppCurrentTime = () => {
@@ -73,9 +22,7 @@ const getAppCurrentTime = () => {
   )
 }
 
-export const appLogFileUri = FileSystem.documentDirectory + 'app_logs.txt'
 
-export const trackLogFileUri = FileSystem.documentDirectory + 'track_logs.txt'
 
 export const appLogToFile = async (message) => {
   const fileInfo = await FileSystem.getInfoAsync(appLogFileUri)
@@ -83,7 +30,7 @@ export const appLogToFile = async (message) => {
   const timestampData = getAppCurrentTime()
   const timeStamp = timestampData.split(', ')
   const timestamp = `${timeStamp[0]}T${timeStamp[1]}`
-  const newLog = `APP LOG ${timestamp} - ${message}\n`
+  const newLog = `${timestamp} - ${message}\n`
   console.log(`APP LOG ${timestamp} - ${message}`)
   if (fileInfo.exists) {
     exsistingLog = await FileSystem.readAsStringAsync(appLogFileUri, {
@@ -99,6 +46,7 @@ export const appLogToFile = async (message) => {
 }
 
 export const trackLogToFile = async (trackName, baseName) => {
+  console.log('track LOG start write')
   const fileInfo = await FileSystem.getInfoAsync(trackLogFileUri)
   let exsistingLog = ''
   const formatName = trackName.split('/')
@@ -115,24 +63,26 @@ export const trackLogToFile = async (trackName, baseName) => {
   const updatedLog = exsistingLog + newLog
   try {
     await FileSystem.writeAsStringAsync(trackLogFileUri, updatedLog, { encoding: FileSystem.EncodingType.UTF8 })
+    console.log('track LOG writed')
   } catch (error) {
     console.log('не удалось записать лог трека')
   }
 }
 
 
-export const removeTrackLogFile = async () => {
+export const removeLogFile = async (fielUri) => {
   try {
-    await FileSystem.deleteAsync(trackLogFileUri)
+    await FileSystem.deleteAsync(fielUri)
   } catch (error) {
-    console.log('не удалось удалить лог трека')
+    console.log('не удалось удалить log файл')
   }
 }
 
-export const removeAppLogFile = async () => {
-  try {
-    await FileSystem.deleteAsync(appLogFileUri)
-  } catch (error) {
-    console.log('не удалось удалить лог приложения')
-  }
+
+export const readLogs = async (fileUri) => {
+  const logData = await FileSystem.readAsStringAsync(fileUri, {
+    encoding: FileSystem.EncodingType.UTF8
+  })
+  const logLines = logData.split('\n')
+  console.log('logLines', logLines)
 }

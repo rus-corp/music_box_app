@@ -1,5 +1,5 @@
 import { authBackend, getAccessToken, updateAccessToken } from "../_variables";
-import { appLogFileUri, trackLogFileUri } from "../../components/shared/helpers/track_logs";
+import { appLogFileUri, trackLogFileUri } from "../_variables";
 
 
 

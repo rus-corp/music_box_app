@@ -11,26 +11,18 @@ import { AppContext } from '../../../hooks/AppContext';
 import Collection from '../../shared/collection_item/Collection';
 import AudioPlayer from '../../ui/audio_player/AudioPlayer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { appLogToFile, removeAppLogFile, removeTrackLogFile } from '../../shared/helpers/track_logs';
-import { sendAppLogs, sendTrackLogs } from '../../../api/logs/logs_api';
-
-import { checkFileSize } from '../../../api/downloading/download_api';
-import { checkBasesTracks } from '../../shared/helpers/tracks_utils';
-
 
 
 import { getClientCollections } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
   getSavedCollections, clearApp, getBasesTracks, trackListGenerator,
   getCurrentSheduler, checkCollectionFolders, handleCheckClientSheduler,
-  updateSheduler }
+  updateSheduler, appLogToFile, checkBasesTracks }
   from '../../shared/helpers';
 
 
 import { updateBasesTracks } from '../../shared/helpers/base_utils';
 
-
-import { getTrackLogs } from '../../shared/helpers/track_logs';
 
 
 export default function PlayList() {
@@ -41,7 +33,6 @@ export default function PlayList() {
   const [tracks, setTracks] = React.useState([])
   const [progress, setProgress] = React.useState(0)
   const [downloading, setDownloading] = React.useState(false)
-  // const [downloadCollection, setDowmloadCollection] = React.useState(false)
   const [currentBaseName, setCurrentBaseName] = React.useState('')
 
   const handleStartPlay = async () => {
@@ -66,10 +57,6 @@ export default function PlayList() {
     }
   }
 
-  // const handleCheckDownloadCollection = () => {
-  //   setDowmloadCollection(true)
-  // }
-
   const handlePress = async (collectionData) => {
     await appLogToFile(`download collection ${JSON.stringify(collectionData)}`)
     await activateKeepAwakeAsync()
@@ -79,14 +66,14 @@ export default function PlayList() {
       await checkFolderDownloadTracks(collectionData, (current, total) => {
         setProgress((current / total) * 100)
       })
-      // handleCheckDownloadCollection()
     } catch (error) {
       console.log('Error downloading tracks:', error)
     } finally {
       setDownloading(false)
       await deactivateKeepAwake()
       await appLogToFile('deactivateKeepAwake')
-      return true
+      const checkBaseTracks = await checkBasesTracks()
+      return checkBaseTracks
     }
   }
 
@@ -181,38 +168,12 @@ export default function PlayList() {
     // await clearApp()
     const folders = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}`)
     console.log('folders', folders)
-    // const appLogUri = `${FileSystem.documentDirectory}app_logs.txt`
-    // const appLogDAta = await FileSystem.readAsStringAsync(appLogUri, {
-    //   encoding: FileSystem.EncodingType.UTF8
-    // })
-    // const lines = appLogDAta.split('\n')
-    // console.log('app log data', lines)
-    // const handleSendAppLogs = await sendAppLogs()
-    // console.log('send app logs', handleSendAppLogs)
-    // if (handleSendAppLogs.status === 201) {
-    //   console.log('app logs sended')
-    //   await removeAppLogFile()
-    // }
-    // const handleSendTrackLogs = await sendTrackLogs()
-    // console.log('send track logs', handleSendTrackLogs)
-    // if (handleSendTrackLogs.status === 201) {
-    //   console.log('track logs sended')
-    //   await removeTrackLogFile()
-    // }
     // const folders = await checkBasesTracks()
-    // const delLog = await FileSystem.deleteAsync(`${FileSystem.documentDirectory}app_logs.txt`)
-    // console.log(folders)
-    // const log = await appLogToFile('new log')
-    // await FileSystem.deleteAsync(`${FileSystem.documentDirectory}bases/`)
-    // const res = await getTrackLogs()
-    // console.log('track logs', res)
-    // console.log(res.length)
   }
   
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title='Clear App' onPress={handleCheckSize} />
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
       <View style={styles.bntBlock}>
         <View style={styles.btnContainer}>
