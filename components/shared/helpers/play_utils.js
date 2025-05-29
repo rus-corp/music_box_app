@@ -39,11 +39,10 @@ export const getBasesTracks = async(collectionName) => {
         const baseDir = `${FileSystem.documentDirectory}bases/${baseName}`
         try {
           const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-          const trackPatch = baseTracks.map((track) => `${baseDir}/${track}`)
           bases.push({
             name: baseName,
             trackQuantity: base.track_quantity,
-            tracks: trackPatch
+            tracks: baseTracks
           })
         } catch (error) {
           console.log(error)

@@ -33,13 +33,9 @@ export default function AudioPlayer({
       return ''
     }
   }
-  const firstLog = async () => {
-    await appLogToFile(`track play start ${tracks[0]}`)
-  }
   
   React.useEffect(() => {
     if (!currentTrack) {
-      // firstLog()
       setCurrentTrack(tracks[0])
       Audio.setAudioModeAsync({
         staysActiveInBackground: true,
@@ -47,67 +43,78 @@ export default function AudioPlayer({
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: true
       })
-      return sound
-        ? () => {
-          sound.unloadAsync()
+      return () => {
+        if (sound) {
+          sound.unloadAsync().catch(() => {})
         }
-        : undefined
+      }
+      // return sound
+      //   ? () => {
+      //     sound.unloadAsync()
+      //   }
+      //   : undefined
     }
-  }, [tracks, sound])
+  }, [tracks])
 
   React.useEffect(() => {
     if (!sound) return;
+    let isCancelled = false
     const statusUpdate = async (status) => {
-      if (status.didJustFinish) {
-        const basetoUse = currentBaseName || baseName
-        await trackLogToFile(currentTrack, basetoUse)
-        await appLogToFile(`track play finish ${currentTrack}`)
-        const nextIndex = currentTrackIndex + 1
-        if (nextIndex > (tracks.length - 1)) {
-          await appLogToFile(`track list ended, got new track list`)
-          const newTracksData = await fetchBases()
-          const newTracks = newTracksData.selectedTracks
-          await appLogToFile(`new tracks ${JSON.stringify(newTracks)}`)
-          setCurrentTrackIndex(0)
-          setCurrentBaseName(newTracksData.baseName)
-          await appLogToFile(`new tracks base ${newTracksData.baseName}`)
-          const nextTrack = newTracks[0]
-          await appLogToFile(`next new track ${nextTrack}`)
-          setCurrentTrack(nextTrack)
-          await sound.unloadAsync();
-          const {sound: newSound} = await Audio.Sound.createAsync(
-            { uri: nextTrack },
-            { shouldPlay: true }
-          )
-          setSound(newSound)
-          setIsPlaying(true)
-        } else {
-          setCurrentTrackIndex(nextIndex)
-          const nextTrack = tracks[nextIndex]
-          await appLogToFile(`next track play start ${nextTrack}`)
-          setCurrentTrack(nextTrack)
-          await sound.unloadAsync();
-          const {sound: newSound} = await Audio.Sound.createAsync(
-            { uri: nextTrack },
-            { shouldPlay: true }
-          )
-          setSound(newSound)
-          setIsPlaying(true)
+      if (status.didJustFinish && !isCancelled) {
+        try {
+          const basetoUse = currentBaseName || baseName
+          await trackLogToFile(currentTrack, basetoUse)
+          await appLogToFile(`track play finish ${currentTrack}`)
+
+          let nextTrack = null
+          let nextBaseName = currentBaseName
+          let newTracks = tracks
+
+          const nextIndex = currentTrackIndex + 1
+          if (nextIndex >= tracks.length) {
+            await appLogToFile(`track list ended, got new track list`)
+            const newTracksData = await fetchBases()
+            newTracks = newTracksData.selectedTracks
+            nextBaseName = newTracksData.baseName
+            setCurrentBaseName(newTracksData.baseName)
+            setCurrentTrackIndex(0)
+            nextTrack = newTracks[0]
+          } else {
+            setCurrentTrackIndex(nextIndex)
+            nextTrack = tracks[nextIndex];
+          }
+
+          if (sound) {
+            await sound.unloadAsync()
+          }
+          if (!isCancelled) {
+            const fileUri = `${FileSystem.documentDirectory}bases/${nextBaseName}/${nextTrack}`
+            const { sound: NewSound } = await Audio.Sound.createAsync(
+              { uri: fileUri },
+              { shouldPlay: true }
+            )
+            setSound(NewSound)
+            setCurrentTrack(nextTrack)
+            setIsPlaying(true);
+          }
+        } catch {
+          console.log('Error switching track', error);
         }
       }
     }
     sound.setOnPlaybackStatusUpdate(statusUpdate)
     return () => {
+      isCancelled = true
       sound.setOnPlaybackStatusUpdate(null)
     }
-  }, [sound, tracks, currentTrack])
+  }, [sound])
 
   async function loadAndPlayAudio() {
     if (!currentTrack) return;
-    const fileInfo = await FileSystem.getInfoAsync(currentTrack)
-    console.log('load and play', fileInfo)
+    const fileUri = `${FileSystem.documentDirectory}bases/${baseName}/${currentTrack}`
+    console.log(fileUri)
     const { sound } = await Audio.Sound.createAsync(
-      { uri: currentTrack },
+      { uri: fileUri },
       { shouldPlay: true }
     );
     setSound(sound);
@@ -115,7 +122,6 @@ export default function AudioPlayer({
   }
 
   async function handlePlayPause() {
-    console.log('handlePlayPause')
     if (sound) {
       if (isPlaying) {
         await sound.pauseAsync();

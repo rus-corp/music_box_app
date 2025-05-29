@@ -1,0 +1,37 @@
+      // if (status.didJustFinish && ! isCancelled) {
+      //   const basetoUse = currentBaseName || baseName
+      //   await trackLogToFile(currentTrack, basetoUse)
+      //   await appLogToFile(`track play finish ${currentTrack}`)
+      //   const nextIndex = currentTrackIndex + 1
+      //   if (nextIndex > (tracks.length - 1)) {
+      //     await appLogToFile(`track list ended, got new track list`)
+      //     const newTracksData = await fetchBases()
+      //     const newTracks = newTracksData.selectedTracks
+      //     await appLogToFile(`new tracks ${JSON.stringify(newTracks)}`)
+      //     setCurrentTrackIndex(0)
+      //     setCurrentBaseName(newTracksData.baseName)
+      //     await appLogToFile(`new tracks base ${newTracksData.baseName}`)
+      //     const nextTrack = newTracks[0]
+      //     await appLogToFile(`next new track ${nextTrack}`)
+      //     setCurrentTrack(nextTrack)
+      //     await sound.unloadAsync();
+      //     const {sound: newSound} = await Audio.Sound.createAsync(
+      //       { uri: nextTrack },
+      //       { shouldPlay: true }
+      //     )
+      //     setSound(newSound)
+      //     setIsPlaying(true)
+      //   } else {
+      //     setCurrentTrackIndex(nextIndex)
+      //     const nextTrack = tracks[nextIndex]
+      //     await appLogToFile(`next track play start ${nextTrack}`)
+      //     setCurrentTrack(nextTrack)
+      //     await sound.unloadAsync();
+      //     const {sound: newSound} = await Audio.Sound.createAsync(
+      //       { uri: nextTrack },
+      //       { shouldPlay: true }
+      //     )
+      //     setSound(newSound)
+      //     setIsPlaying(true)
+      //   }
+      // }
