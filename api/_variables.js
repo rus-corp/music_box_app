@@ -1,9 +1,11 @@
 import axios from "axios";
+import * as FileSystem from 'expo-file-system'
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export const baseUrl = 'https://music-sol.ru/api'
 
 
-const getAccessToken = async () => {
+export const getAccessToken = async () => {
   const token = await AsyncStorage.getItem('access_token')
   return token
 }
@@ -11,6 +13,18 @@ const getAccessToken = async () => {
 const getRefreshToken = async() => {
   const token = await AsyncStorage.getItem('refresh_token')
   return token
+}
+
+
+export const updateAccessToken = async () => {
+  const refreshToken = await getRefreshToken()
+  const response = await axios.post(
+    `${baseUrl}/auth/refresh`,
+    { 'refresh_token': refreshToken }
+  )
+  const accessToken = response.data.access_token
+  await AsyncStorage.setItem('access_token', accessToken)
+  return accessToken
 }
 
 
@@ -62,3 +76,8 @@ backend.interceptors.response.use((response) => {
   }
   return Promise.reject(error)
 })
+
+
+export const appLogFileUri = FileSystem.documentDirectory + 'app_logs.txt'
+
+export const trackLogFileUri = FileSystem.documentDirectory + 'track_logs.txt'

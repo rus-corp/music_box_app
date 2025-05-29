@@ -27,3 +27,14 @@ export const getBaseTracksByName = async (baseName) => {
     console.error(error)
   }
 }
+
+export const checkFileSize = async (fileName) => {
+  try {
+    const response = await backend.get(
+      `/app_routers/download_track_by_name/${fileName}`
+    )
+    return response
+  } catch (error) {
+    console.error('checkfile', error)
+  }
+}

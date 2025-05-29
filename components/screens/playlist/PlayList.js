@@ -1,4 +1,6 @@
 import React from 'react';
+import * as FileSystem from 'expo-file-system'
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { styles } from './styles'
 
@@ -15,11 +17,13 @@ import { getClientCollections } from '../../../api';
 import { checkFolderDownloadTracks, saveCollections,
   getSavedCollections, clearApp, getBasesTracks, trackListGenerator,
   getCurrentSheduler, checkCollectionFolders, handleCheckClientSheduler,
-  updateSheduler }
+  updateSheduler, appLogToFile, checkBasesTracks }
   from '../../shared/helpers';
 
 
 import { updateBasesTracks } from '../../shared/helpers/base_utils';
+
+
 
 export default function PlayList() {
   const { user } = React.useContext(AppContext)
@@ -29,55 +33,63 @@ export default function PlayList() {
   const [tracks, setTracks] = React.useState([])
   const [progress, setProgress] = React.useState(0)
   const [downloading, setDownloading] = React.useState(false)
-  const [downloadCollection, setDowmloadCollection] = React.useState(false)
-  const [handleStartPlayData, setHandleStartPlayData] = React.useState(null)
+  const [currentBaseName, setCurrentBaseName] = React.useState('')
 
   const handleStartPlay = async () => {
+    await appLogToFile('handleStartPlay func')
     const sheduleData = await handleCheckClientSheduler()
-    console.log('sheduleData', sheduleData)
+    await appLogToFile(`client sheduleData ${JSON.stringify(sheduleData)}`)
     const currentShedule = getCurrentSheduler(sheduleData)
-    console.log(currentShedule)
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     currentCollectionRef.current = currentShedule
-    console.log('currentCollectionRef.current', currentCollectionRef.current)
     const data = await getBasesTracks(currentShedule)
-    console.log('data', data)
+    await appLogToFile(`client bases tracks ${data.length}`)
     trackGeneratorRef.current = trackListGenerator(data, 20)
     const { value, done } = trackGeneratorRef.current.next()
-    console.log('value', value)
+    await appLogToFile(`client first generator ${JSON.stringify(value)}`)
     if (value) {
-      setTracks(value)
+      setTracks(value.selectedTracks)
+      setCurrentBaseName(value.baseName)
     }
   }
 
-  const handleCheckDownloadCollection = () => {
-    setDowmloadCollection(true)
-  }
-
   const handlePress = async (collectionData) => {
+    await appLogToFile(`download collection ${JSON.stringify(collectionData)}`)
+    await activateKeepAwakeAsync()
     setProgress(0)
     setDownloading(true)
-    await checkFolderDownloadTracks(collectionData, (current, total) => {
-      setProgress((current / total) * 100)
-    })
-    setDownloading(false)
-    handleCheckDownloadCollection()
+    try {
+      await checkFolderDownloadTracks(collectionData, (current, total) => {
+        setProgress((current / total) * 100)
+      })
+    } catch (error) {
+      console.log('Error downloading tracks:', error)
+    } finally {
+      setDownloading(false)
+      await deactivateKeepAwake()
+      await appLogToFile('deactivateKeepAwake')
+      const checkBaseTracks = await checkBasesTracks()
+      return checkBaseTracks
+    }
   }
 
 
 
   const clientCollections = async () => {
+    await appLogToFile('clientCollections func')
     const clientCollections = await getSavedCollections()
+    await appLogToFile(`client saved collections ${JSON.stringify(clientCollections)}`)
     if (clientCollections.length === 0) {
       const response = await getClientCollections()
       if (response.status === 200) {
+        await appLogToFile(`client get collections from server ${JSON.stringify(response.data)}`)
         const handleSaveCollection = await saveCollections(response.data)
-        console.log('handleSaveCollection', handleSaveCollection)
-        setCollections(response.data)
+        await appLogToFile(`client save collections to storage`)
+        setCollections(handleSaveCollection)
         return handleSaveCollection
       }
     } else {
@@ -89,17 +101,12 @@ export default function PlayList() {
 
   const handleDeleteAccess = async () => {
     const token = await AsyncStorage.removeItem('access_token')
-    console.log(token)
     const deletedToken = await AsyncStorage.getItem('access_token')
     console.log(deletedToken)
   }
 
-  const deleteStorageCollections = async () => {
-    await clearApp()
-    console.log('collections deleted')
-  }
-
   const fetchBases = async (collectionData) => {
+    await appLogToFile('fetchBases func')
     const collectionFolders = await checkCollectionFolders()
     if (collectionFolders.some(item => item.folderInfo === false)) {
       Alert.alert('Необходимо загрузить треки', 'Нажмите на кнопку "Загрузить"', [
@@ -110,43 +117,44 @@ export default function PlayList() {
   }
 
   const getNextTrackList = async () => {
-    console.log('next gen')
+    await appLogToFile('client next generator')
     const sheduleData = await handleCheckClientSheduler()
+    await appLogToFile('client check sheduler')
     const currentShedule = getCurrentSheduler(sheduleData)
-    console.log('next gen currentShedule', currentShedule)
-    console.log('currentCollectionRef.current', currentCollectionRef.current)
+    await appLogToFile('client curent sheduler')
     if (!currentShedule) {
       Alert.alert('Нет активного расписания', 'Создайте расписание в личном кабинете', [
         { text: 'OK' }
       ])
     }
     if (currentShedule !== currentCollectionRef.current) {
-      console.log('new collection shedul')
+      await appLogToFile('change curent sheduler')
       currentCollectionRef.current = currentShedule
-      console.log(' new currentCollectionRef', currentCollectionRef)
       const data = await getBasesTracks(currentShedule)
-      console.log('next collection', data)
       trackGeneratorRef.current = trackListGenerator(data, 20)
+      await appLogToFile('get new bases and tracks generator')
     }
     const { value, done } = trackGeneratorRef.current.next()
     if (value) {
-      setTracks(value)
+      setTracks(value.selectedTracks)
+      setCurrentBaseName(value.baseName)
     }
     return value
   }
 
   const handleUpdateSheduler = async () => {
+    await appLogToFile('client cliked update sheduler')
     const updatedShedule = await updateSheduler()
   }
 
   const handleUpdateBases = async () => {
-    console.log('UPDATE BASES CLICK')
+    await appLogToFile('client cliked update bases')
     const collectionBases =  await updateBasesTracks()
-    console.log('collectionBases', collectionBases)
   }
 
   React.useEffect(() => {
     const collections = async () => {
+      await appLogToFile('useEffect playlist')
       const collectionsData = await clientCollections()
       if (collectionsData) {
         await fetchBases(collectionsData)
@@ -154,11 +162,18 @@ export default function PlayList() {
     }
     collections()
   }, [user])
+
+
+  const handleCheckSize = async() => {
+    // await clearApp()
+    const folders = await FileSystem.readDirectoryAsync(`${FileSystem.documentDirectory}`)
+    console.log('folders', folders)
+    // const folders = await checkBasesTracks()
+  }
   
   return(
     <View style={styles.mainContainer}>
       <Header />
-      <Button title='Clear app' onPress={deleteStorageCollections}/>
       <Button title='Начать воспроизведение' onPress={handleStartPlay} />
       <View style={styles.bntBlock}>
         <View style={styles.btnContainer}>
@@ -192,8 +207,8 @@ export default function PlayList() {
                 trackCount={collectionItem.track_count}
                 collectionId={collectionItem.id}
                 // startPlay={handleStartPlay}
-                collectionDownload={downloadCollection}
-                onRegisterStartPlay={setHandleStartPlayData}
+                // collectionDownload={downloadCollection}
+                // onRegisterStartPlay={setHandleStartPlayData}
                 />
               ))}
             </View>
@@ -201,7 +216,8 @@ export default function PlayList() {
           <AudioPlayer
           tracks={tracks}
           fetchBases={getNextTrackList}
-          onRequestMoreTracks={handleStartPlayData}
+          // onRequestMoreTracks={handleStartPlayData}
+          baseName={currentBaseName}
           />
         </View>
       </LinearGradient>

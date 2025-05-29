@@ -19,11 +19,15 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-      ["expo-build-properties", {
-        "android": {
-          "usesCleartextTraffic": true
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
         }
-      }]
+      ],
+      "expo-localization"
     ],
     "ios": {
       "supportsTablet": true

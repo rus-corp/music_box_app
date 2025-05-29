@@ -39,11 +39,10 @@ export const getBasesTracks = async(collectionName) => {
         const baseDir = `${FileSystem.documentDirectory}bases/${baseName}`
         try {
           const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-          const trackPatch = baseTracks.map((track) => `${baseDir}/${track}`)
           bases.push({
             name: baseName,
             trackQuantity: base.track_quantity,
-            tracks: trackPatch
+            tracks: baseTracks
           })
         } catch (error) {
           console.log(error)
@@ -51,23 +50,6 @@ export const getBasesTracks = async(collectionName) => {
       }
     }
   }
-  // for (collection of clientCollectionParse) {
-  //   for (const base of collection.base_collection_association) {
-  //     const baseName = base.base_collection.name.replace(/[^a-zA-Z0-9]/g, '_')
-  //     const baseDir = `${FileSystem.documentDirectory}${baseName}`
-  //     try {
-  //       const baseTracks = await FileSystem.readDirectoryAsync(baseDir)
-  //       const trackPath = baseTracks.map((track) => `${baseDir}/${track}`)
-  //       bases.push({
-  //         name: baseName,
-  //         trackQuantity: base.track_quantity,
-  //         tracks: trackPath
-  //       })
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   }
-  // }
   return bases
 }
 
@@ -106,50 +88,25 @@ export const getNextTrackUri = async (trackUri) => {
 }
 
 
-const getRandomFiles = (filesList, count) => {
-  return filesList.sort(() => Math.random() - 0.5).slice(0, Math.min(count, filesList.length))
+const getRandomTRack = (maxLen) => {
+  return Math.floor(Math.random() * maxLen);
 }
-
 
 export function* trackListGenerator(bases, batchSize=20) {
   let baseIndex = 0
-  let trackIndexes = bases.map(() => 0)
   while (true) {
     const base = bases[baseIndex]
     const trackCount = base.trackQuantity
-    const startIndex = trackIndexes[baseIndex]
-
+    const baseName = base.name
     const selectedTracks = []
 
     for (let i=0; i < trackCount; i++) {
-      const trackIndex = (startIndex + i) % base.tracks.length
+      const trackIndex = getRandomTRack(base.tracks.length)
       selectedTracks.push(base.tracks[trackIndex])
-      trackIndexes[baseIndex] = (trackIndexes[baseIndex] + 1) % base.tracks.length
     }
     baseIndex = (baseIndex + 1) % bases.length
-    yield selectedTracks
+    // yield selectedTracks
+    yield { selectedTracks, baseName }
   }
-  // console.log(bases)
-  // let lastIndex = 0
-  // while (true) {
-  //   let allTracks = []
-  //   for (const base of bases) {
-  //     const trackCount = base.trackQuantity
-  //     console.log('trackCount', trackCount)
-  //     const selectedTracks = base.tracks.slice(lastIndex, lastIndex + trackCount)
-  //     lastIndex = (lastIndex + trackCount) % base.tracks.length
-  //     allTracks.push(...selectedTracks)
-  //   }
-    // while (allTracks.length < batchSize) {
-    //   for (const base of bases) {
-    //     console.log('generator base', base)
-    //     if (allTracks.length >= batchSize) break
-
-    //     if (base.tracks.length === 0) continue
-
-    //     const selectedTracks = base.tracks.splice(0, base.trackQuantity)
-    //     allTracks.push(...selectedTracks)
-    //   }
-    //   if (allTracks.length === 0) return
-    // }
 }
+

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { getClientSheduler } from "../../../api"
-
+import { appLogToFile } from "./track_logs"
 
 const daysData = {
   0: 'Вс',
@@ -41,6 +41,7 @@ export const getCurrentSheduler = (shedulerData) => {
 
 
 export const saveClientSheduler = async (shedulerData) => {
+  await appLogToFile('saveClientSheduler func')
   const clientSheduler = []
   for (const sheduleItem of shedulerData) {
     const collectionName = sheduleItem.collection['name']
@@ -83,6 +84,7 @@ export const handleCheckClientSheduler = async () => {
   if (sheduler.length === 0) {
     const response = await getClientSheduler()
     if (response.status === 200) {
+      await appLogToFile('getClientSheduler from server')
       const newSheduler = await saveClientSheduler(response.data)
       return newSheduler
     }

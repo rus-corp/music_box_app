@@ -1,9 +1,11 @@
+import { trackLogFileUri } from "../../../api";
 import { createFolder } from "./base_utils";
 import { clearApp, getCollectionFiles, getSavedCollections, saveCollections } from "./collection_utils";
 import { checkCollectionFolders, checkFolder, deleteFolder } from "./folder_utils";
 import { getBasesTracks, getNextTrackUri, getRandomTrack, getStartTrackList, trackListGenerator } from "./play_utils";
 import { getCurrentSheduler, handleCheckClientSheduler, saveClientSheduler, updateSheduler } from "./sheduler_utils";
-import { checkFolderDownloadTracks } from "./tracks_utils";
+import { appLogToFile, removeLogFile, trackLogToFile } from "./track_logs";
+import { checkBasesTracks, checkFolderDownloadTracks } from "./tracks_utils";
 
 
 
@@ -13,5 +15,5 @@ export { createFolder, saveCollections, getSavedCollections,
   getRandomTrack, getNextTrackUri, checkFolderDownloadTracks, checkFolder,
   getBasesTracks, trackListGenerator, getCurrentSheduler,
   saveClientSheduler, handleCheckClientSheduler, updateSheduler,
-  checkCollectionFolders }
-
+  checkCollectionFolders, appLogToFile, trackLogToFile, removeLogFile,
+  checkBasesTracks }

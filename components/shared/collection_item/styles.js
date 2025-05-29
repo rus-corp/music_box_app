@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
   },
   content: {
     marginTop: '2%',
+    flexDirection: 'column',
   },
   title: {
     fontWeight: 600,

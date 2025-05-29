@@ -50,5 +50,15 @@ export const styles = StyleSheet.create({
     marginTop: '5%',
     textAlign: "center",
     alignItems: 'center'
+  },
+  error: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    textAlign: 'center',
   }
 })
